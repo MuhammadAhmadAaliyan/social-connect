@@ -12,6 +12,9 @@ import { Formik } from 'formik';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch } from 'react-redux';
+import { fetchCurrentUser } from '../redux/slices/userSlice';
+import { AppDispatch } from '../redux/store';
 
 //AUTH COMPONENTS
 import { auth } from '../firebase';
@@ -35,6 +38,7 @@ const LoginScreen = () => {
   const [loading, setLoading] = React.useState(false);
   const [modalHeader, setModalHeader] = React.useState('');
   const [modalMessage, setModalMessage] = React.useState('');
+  const dispatch = useDispatch<AppDispatch>();
 
   //YUP VALIDATION SCHEMA
   const SigninSchema = Yup.object().shape({
@@ -63,11 +67,9 @@ const LoginScreen = () => {
         return;
       }
 
+      await dispatch(fetchCurrentUser(user.uid));
+
       setLoading(false);
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'MainTabs' }],
-      });
     } catch (err: any) {
       setLoading(false);
       if (err.code === 'auth/invalid-credential') {
@@ -85,7 +87,10 @@ const LoginScreen = () => {
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={styles.container}
+        edges={{ top: 'off', bottom: 'additive' }}
+      >
         <ScrollView showsVerticalScrollIndicator={false}>
           {/*LOGO*/}
           <Logo name={'link'} size={40} />

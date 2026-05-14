@@ -3,14 +3,28 @@ import { Feather } from '@expo/vector-icons';
 
 type InputFieldProps = {
   text: string;
-  iconName: any;
+  iconName?: any;
   onPress: () => void;
+  disabled?: boolean;
+  style?: any;
 };
 
-export default function Button({ text, iconName, onPress }: InputFieldProps) {
+export default function Button({
+  text,
+  iconName,
+  onPress,
+  disabled,
+  style,
+}: InputFieldProps) {
   return (
-    <TouchableOpacity style={styles.button} onPress={onPress}>
-      <Text style={styles.buttonText}>{text}</Text>
+    <TouchableOpacity
+      style={[styles.button, disabled && { backgroundColor: '#334155' }, style]}
+      onPress={onPress}
+      disabled={disabled}
+    >
+      <Text style={[styles.buttonText, disabled && { color: '#64748B' }]}>
+        {text}
+      </Text>
       <Feather name={iconName} size={30} color={'#ffffff'} />
     </TouchableOpacity>
   );

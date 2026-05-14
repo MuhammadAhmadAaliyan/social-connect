@@ -1,7 +1,14 @@
+import { useEffect, useState } from 'react';
+import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider, useDispatch } from 'react-redux';
+import { store } from './redux/store';
+import { auth } from './firebase';
+import { fetchCurrentUser, clearCurrentUser } from './redux/slices/userSlice';
+import { AppDispatch } from './redux/store';
 
 //SCREENS
 import SignupScreen from './components/SignupScreen';
@@ -11,59 +18,87 @@ import TabNavigator from './navigation/TabNavigator';
 import EditProfileScreen from './components/ProfileEditScreen';
 import CreatePostScreen from './components/CreatePostScreen';
 import ViewProfileScreen from './components/ViewProfileScreen';
+import CommentScreen from './components/CommentScreen';
+
+//OTHER COMPONENTS
+import Loading from './utils/Loading';
 
 //SCREEN TYPES
 import { RootStackParamList } from './navigation/routesType';
 
-//STACK NAVIGATOR
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-export default function App() {
-  // useEffect(() => {
-  //   const unsubscribe = auth.onAuthStateChanged((user: any) => {
-  //     if (user) {
-  //       console.log('✅ Persistence working - User:', user.uid);
-  //     } else {
-  //       console.log('❌ No user found');
-  //     }
-  //   });
-  //   return unsubscribe;
-  // }, []); // wait for auth to resolve
+const AuthNavigator = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+      contentStyle: { flex: 1, backgroundColor: '#0F172A' },
+    }}
+  >
+    <Stack.Screen name="Login" component={LoginScreen} />
+    <Stack.Screen name="Signup" component={SignupScreen} />
+    <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+  </Stack.Navigator>
+);
+
+const AppNavigator = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+      contentStyle: { flex: 1, backgroundColor: '#0F172A' },
+    }}
+  >
+    <Stack.Screen name="MainTabs" component={TabNavigator} />
+    <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+    <Stack.Screen name="CreatePost" component={CreatePostScreen} />
+    <Stack.Screen name="ViewProfile" component={ViewProfileScreen} />
+    <Stack.Screen name="Comment" component={CommentScreen} />
+  </Stack.Navigator>
+);
+
+// NAVIGATION COMPONENT HANDLING AUTH STATE
+const Navigation = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const [user, setUser] = useState<any>(null);
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        // FETCH USER DATA AND STORE IN
+        await dispatch(fetchCurrentUser(firebaseUser.uid));
+      } else {
+        setUser(null);
+        // CLEAR USER FROM REDUX ON LOGOUT
+        dispatch(clearCurrentUser());
+      }
+      setAuthReady(true);
+    });
+    return unsubscribe;
+  }, []);
+
+  if (!authReady)
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0F172A' }}>
+        <Loading />
+      </View>
+    );
 
   return (
-    <SafeAreaView
-      style={{ flex: 1 }}
-      edges={{ top: 'off', bottom: 'additive' }}
-    >
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { flex: 1, backgroundColor: '#0F172A' },
-          }}
-          initialRouteName="Login"
-        >
-          {/*AUTH SCREENS*/}
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Signup" component={SignupScreen} />
-          <Stack.Screen
-            name="ForgotPassword"
-            component={ForgotPasswordScreen}
-          />
+    <NavigationContainer>
+      {user ? <AppNavigator /> : <AuthNavigator />}
+      <StatusBar style="light" />
+    </NavigationContainer>
+  );
+};
 
-          {/*MAIN SCREENS*/}
-          <Stack.Screen name="MainTabs" component={TabNavigator} />
-          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-          <Stack.Screen name="CreatePost" component={CreatePostScreen} />
-          <Stack.Screen name="ViewProfile" component={ViewProfileScreen} />
-        </Stack.Navigator>
-        <StatusBar style="light" />
-      </NavigationContainer>
-    </SafeAreaView>
+export default function App() {
+  return (
+    <SafeAreaProvider style={{ flex: 1 }}>
+      <Provider store={store}>
+        <Navigation />
+      </Provider>
+    </SafeAreaProvider>
   );
 }
-
-//TODO:
-//create post screen
-//Enable like and unlike system
-//Comments screen

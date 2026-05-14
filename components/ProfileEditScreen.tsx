@@ -20,6 +20,10 @@ import { Formik } from 'formik';
 import { FormikProps } from 'formik';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../redux/store';
+import { updateCurrentUser } from '../redux/slices/userSlice';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 //AUTH COMPONENTS
 import { auth, db } from '../firebase';
@@ -29,10 +33,10 @@ import { updateDoc, doc } from 'firebase/firestore';
 import BackButton from '../utils/BackButton';
 import InputField from '../utils/InputField';
 import StatusModal from '../utils/StatusModal';
+import Button from '../utils/Button';
 
 type FormValues = {
   fullName: string;
-  email: string;
   bio: string;
 };
 
@@ -45,13 +49,13 @@ const EditProfileScreen = () => {
   //HOOKS
   const submitRef = useRef<FormikProps<FormValues> | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [profileImage, setProfileImage] = useState<any>(null);
-  const [existingProfileImage, setExistingProfileImage] = useState<any>(null);
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [modalHeader, setModalHeader] = useState('');
   const [modalMessage, setModalMessage] = useState('');
-
+  const dispatch = useDispatch<AppDispatch>();
+  const { currentUser } = useSelector((state: RootState) => state.user);
+  const [profileImage, setProfileImage] = useState<any>(currentUser?.userImage);
   const navigation = useNavigation<NavigationProp>();
 
   //YUP VALIDATION SCHEMA
@@ -113,6 +117,9 @@ const EditProfileScreen = () => {
 
       if (!result.canceled) {
         setProfileImage(result.assets[0].uri);
+        updateCurrentUser({
+          userImage: result.assets[0].uri || '',
+        });
       }
     } catch (err) {
       console.log(err);
@@ -142,6 +149,10 @@ const EditProfileScreen = () => {
 
       if (!result.canceled) {
         setProfileImage(result.assets[0].uri);
+
+        updateCurrentUser({
+          userImage: result.assets[0].uri || '',
+        });
       }
     } catch (err) {
       console.log(err);
@@ -149,15 +160,12 @@ const EditProfileScreen = () => {
   };
 
   //METHOD FOR UPDATING USER DATA
-  const updateData = async (
-    username: string,
-    bio: string,
-    userImage: string,
-  ) => {
+  const updateData = async (username: string, bio: string) => {
     try {
-      let picURL = existingProfileImage;
-      if (profileImage) {
-        picURL = await uploadImage(userImage);
+      let picURL = profileImage;
+      if (profileImage && profileImage !== currentUser?.userImage) {
+        console.log(profileImage);
+        picURL = await uploadImage(profileImage);
       }
 
       const user = auth.currentUser;
@@ -179,6 +187,14 @@ const EditProfileScreen = () => {
 
       await updateDoc(docRef, payLoad);
 
+      dispatch(
+        updateCurrentUser({
+          username,
+          bio,
+          userImage: picURL || '',
+        }),
+      );
+
       setModalHeader('Success');
       setModalMessage('Profile updated successfully.');
       setLoading(false);
@@ -192,131 +208,160 @@ const EditProfileScreen = () => {
   return (
     <>
       {/*HEADER*/}
-      <View style={styles.header}>
-        <BackButton onPress={() => navigation.goBack()} />
-        <Text style={styles.headerText}>Edit Profile</Text>
-        <Pressable
-          style={styles.checkButton}
-          onPress={() => submitRef.current?.handleSubmit()}
-        >
-          <Feather name="check" size={30} color={'#ffffff'} />
-        </Pressable>
-      </View>
-      {/*SEPERATOR LINE*/}
-      <View style={styles.seperatorLine} />
-      {/*MAIN AREA*/}
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <SafeAreaView
+        style={{ flex: 1 }}
+        edges={{ top: 'off', bottom: 'additive' }}
       >
-        <ScrollView
-          contentContainerStyle={styles.mainArea}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/*PROFILE PICTURE*/}
-          <View style={{ paddingHorizontal: 20 }}>
-            <View
-              style={{ flexDirection: 'row', justifyContent: 'space-between' }}
-            >
-              <Text style={styles.subText}>AVATAR</Text>
-              {(profileImage || existingProfileImage) && (
-                <MaterialIcons
-                  name={'delete-outline'}
-                  size={25}
-                  color={'#6366F1'}
-                  style={{ paddingTop: 10 }}
-                  onPress={() => {
-                    setProfileImage(null);
-                    setExistingProfileImage(null);
-                  }}
-                />
-              )}
-            </View>
-            <View style={styles.imageContainer}>
-              {profileImage ? (
-                <View>
-                  <Image
-                    source={{ uri: profileImage }}
-                    resizeMode="contain"
-                    style={[
-                      styles.profileImage,
-                      { backgroundColor: 'transparent' },
-                    ]}
-                  />
-                </View>
-              ) : (
-                <View style={styles.profileImage}>
-                  <Text style={styles.nameInitials}>AA</Text>
-                </View>
-              )}
-              <Pressable
-                style={styles.cameraButton}
-                onPress={() => setModalVisible(true)}
-              >
-                <Feather name="camera" size={20} color={'#ffffff'} />
-              </Pressable>
-            </View>
+        <View style={styles.header}>
+          <BackButton onPress={() => navigation.goBack()} />
+          <View style={styles.headerTextContainer} pointerEvents="none">
+            <Text style={styles.headerText}>Edit Profile</Text>
           </View>
-          {/*SEPERATOR LINE*/}
-          <View style={[styles.seperatorLine, { marginTop: 16 }]} />
-          {/*BASIC INFORMATION*/}
-          <Formik<FormValues>
-            initialValues={{
-              fullName: '',
-              email: '',
-              bio: '',
-            }}
-            validationSchema={InputSchema}
-            onSubmit={(values) => {
-              setStatusModalVisible(true);
-              setLoading(true);
-              updateData(values.fullName, values.bio, profileImage);
-            }}
-            innerRef={submitRef}
+        </View>
+        {/*SEPERATOR LINE*/}
+        <View style={styles.seperatorLine} />
+        {/*MAIN AREA*/}
+        <ScrollView style={{ flex: 1 }}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
-            {({ handleChange, handleBlur, values, touched, errors }: any) => (
-              <View>
-                <View style={{ paddingHorizontal: 20 }}>
-                  <Text style={styles.subText}>BASIC INFORMATION</Text>
-
-                  <Text style={styles.text}>Full Name</Text>
-                  <InputField
-                    value={values.fullName}
-                    onChangeValue={handleChange('fullName')}
-                    onBlur={handleBlur('fullName')}
-                    placeholder={'John Doe'}
-                    iconName={'user'}
-                  />
-                  {touched.fullName && errors.fullName && (
-                    <Text style={{ color: 'red' }}>{errors.fullName}</Text>
+            <ScrollView
+              contentContainerStyle={styles.mainArea}
+              keyboardShouldPersistTaps="handled"
+            >
+              {/*PROFILE PICTURE*/}
+              <View style={{ paddingHorizontal: 20 }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Text style={styles.subText}>AVATAR</Text>
+                  {profileImage && (
+                    <MaterialIcons
+                      name={'delete-outline'}
+                      size={25}
+                      color={'#6366F1'}
+                      style={{ paddingTop: 10 }}
+                      onPress={() => {
+                        setProfileImage(null);
+                      }}
+                    />
                   )}
                 </View>
-
-                {/* SEPARATOR */}
-                <View style={[styles.seperatorLine, { marginTop: 16 }]} />
-
-                <View style={{ paddingHorizontal: 20 }}>
-                  <Text style={styles.subText}>ABOUT</Text>
-
-                  <Text style={styles.text}>Bio</Text>
-                  <TextInput
-                    value={values.bio}
-                    onChangeText={handleChange('bio')}
-                    onBlur={handleBlur('bio')}
-                    keyboardType={'default'}
-                    placeholder={'About Yourself'}
-                    placeholderTextColor={'rgba(148, 163, 184, 0.3)'}
-                    multiline
-                    style={styles.multilineInput}
-                  />
-                  {touched.bio && errors.bio && (
-                    <Text style={{ color: 'red' }}>{errors.bio}</Text>
+                <View style={styles.imageContainer}>
+                  {profileImage ? (
+                    <View>
+                      <Image
+                        source={{ uri: profileImage }}
+                        resizeMode="contain"
+                        style={[
+                          styles.profileImage,
+                          { backgroundColor: 'transparent' },
+                        ]}
+                      />
+                    </View>
+                  ) : (
+                    <View style={styles.profileImage}>
+                      <Text style={styles.nameInitials}>AA</Text>
+                    </View>
                   )}
+                  <Pressable
+                    style={styles.cameraButton}
+                    onPress={() => setModalVisible(true)}
+                  >
+                    <Feather name="camera" size={20} color={'#ffffff'} />
+                  </Pressable>
                 </View>
               </View>
-            )}
-          </Formik>
+              {/*SEPERATOR LINE*/}
+              <View style={[styles.seperatorLine, { marginTop: 16 }]} />
+              {/*BASIC INFORMATION*/}
+              <Formik<FormValues>
+                initialValues={{
+                  fullName: currentUser?.username,
+                  bio: currentUser?.bio,
+                }}
+                validationSchema={InputSchema}
+                onSubmit={(values) => {
+                  setStatusModalVisible(true);
+                  setLoading(true);
+                  updateData(values.fullName, values.bio);
+                }}
+                innerRef={submitRef}
+              >
+                {({
+                  handleChange,
+                  handleBlur,
+                  values,
+                  touched,
+                  errors,
+                  handleSubmit,
+                  isValid,
+                  dirty,
+                }) => {
+                  const isImageChanged =
+                    profileImage !== currentUser?.userImage;
+
+                  const isButtonEnabled = (dirty || isImageChanged) && isValid;
+                  return (
+                    <View>
+                      <View style={{ paddingHorizontal: 20 }}>
+                        <Text style={styles.subText}>BASIC INFORMATION</Text>
+
+                        <Text style={styles.text}>Full Name</Text>
+                        <InputField
+                          value={values.fullName}
+                          onChangeValue={handleChange('fullName')}
+                          onBlur={handleBlur('fullName')}
+                          placeholder={'John Doe'}
+                          iconName={'user'}
+                        />
+                        {touched.fullName && errors.fullName && (
+                          <Text style={{ color: 'red' }}>
+                            {errors.fullName}
+                          </Text>
+                        )}
+                      </View>
+
+                      {/* SEPARATOR */}
+                      <View style={[styles.seperatorLine, { marginTop: 16 }]} />
+
+                      <View style={{ paddingHorizontal: 20 }}>
+                        <Text style={styles.subText}>ABOUT</Text>
+
+                        <Text style={styles.text}>Bio</Text>
+                        <TextInput
+                          value={values.bio}
+                          onChangeText={handleChange('bio')}
+                          onBlur={handleBlur('bio')}
+                          keyboardType={'default'}
+                          placeholder={'About Yourself'}
+                          placeholderTextColor={'rgba(148, 163, 184, 0.3)'}
+                          multiline
+                          style={styles.multilineInput}
+                        />
+                        {touched.bio && errors.bio && (
+                          <Text style={{ color: 'red' }}>{errors.bio}</Text>
+                        )}
+                      </View>
+                      <View style={{ paddingHorizontal: 20, marginTop: 40 }}>
+                        <Button
+                          text={'Save Changes'}
+                          onPress={handleSubmit}
+                          disabled={!isButtonEnabled}
+                          style={{ marginBottom: 0 }}
+                        />
+                      </View>
+                    </View>
+                  );
+                }}
+              </Formik>
+            </ScrollView>
+          </KeyboardAvoidingView>
         </ScrollView>
-      </KeyboardAvoidingView>
+      </SafeAreaView>
       <Modal
         visible={modalVisible}
         transparent
@@ -370,21 +415,22 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 16,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   headerText: {
     fontSize: 24,
     fontFamily: 'Inter',
     fontWeight: 'bold',
     color: '#ffffff',
-    textAlignVertical: 'center',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
   },
-  checkButton: {
-    backgroundColor: '#6366F1',
-    width: 50,
-    height: 50,
-    borderRadius: 15,
-    justifyContent: 'center',
+  headerTextContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     alignItems: 'center',
   },
   seperatorLine: {

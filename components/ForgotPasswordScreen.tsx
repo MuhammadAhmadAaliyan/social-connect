@@ -64,7 +64,10 @@ const ForgotPasswordScreen = () => {
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={styles.container}
+        edges={{ top: 'off', bottom: 'additive' }}
+      >
         <ScrollView showsVerticalScrollIndicator={false}>
           {/*BACK BUTTON*/}
           <BackButton onPress={() => navigation.goBack()} />

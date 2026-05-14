@@ -11,6 +11,9 @@ import { Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { updateCurrentUser } from '../redux/slices/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../redux/store';
 
 //AUTH COMPONENTS
 import { auth, db } from '../firebase';
@@ -26,9 +29,10 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const ProfileScreen = () => {
   //HOOKS
-  const [userData, setUserData] = useState<any>();
   const navigation = useNavigation<NavigationProp>();
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { currentUser } = useSelector((state: RootState) => state.user);
 
   //FETCH USER PROFILE DATA FROM FIRESTORE
   useEffect(() => {
@@ -41,7 +45,18 @@ const ProfileScreen = () => {
         const snapShot = await getDoc(docRef);
 
         if (snapShot.exists()) {
-          setUserData(snapShot.data());
+          const data = snapShot.data();
+
+          dispatch(
+            updateCurrentUser({
+              id: user.uid,
+              username: data.username,
+              bio: data.bio,
+              userImage: data.userImage,
+              email: data.email,
+              createdAt: data.createdAt?.toDate().toISOString() || null,
+            }),
+          );
         } else {
           console.log('No user found.');
         }
@@ -93,9 +108,9 @@ const ProfileScreen = () => {
             {/*PROFILE PICTURE*/}
             <View style={{ paddingHorizontal: 20 }}>
               <Text style={styles.subText}>AVATAR</Text>
-              {userData.userImage ? (
+              {currentUser.userImage ? (
                 <Image
-                  source={{ uri: userData.userImage }}
+                  source={{ uri: currentUser.userImage }}
                   resizeMode={'contain'}
                   style={[
                     styles.profileImage,
@@ -105,7 +120,7 @@ const ProfileScreen = () => {
               ) : (
                 <View style={styles.profileImage}>
                   <Text style={styles.nameInitials}>
-                    {getInitials(userData.username)}
+                    {getInitials(currentUser.username)}
                   </Text>
                 </View>
               )}
@@ -118,13 +133,13 @@ const ProfileScreen = () => {
               <Text style={styles.text}>Full Name</Text>
               <View style={styles.infoFields}>
                 <Text style={[styles.text, { paddingVertical: 0 }]}>
-                  {userData.username}
+                  {currentUser.username}
                 </Text>
               </View>
               <Text style={styles.text}>Email</Text>
               <View style={styles.infoFields}>
                 <Text style={[styles.text, { paddingVertical: 0 }]}>
-                  {userData.email}
+                  {currentUser.email}
                 </Text>
               </View>
             </View>
@@ -143,10 +158,10 @@ const ProfileScreen = () => {
                   style={[
                     styles.text,
                     { paddingVertical: 10 },
-                    !userData.bio && { color: 'rgba(148, 163, 184, 0.3)' },
+                    !currentUser.bio && { color: 'rgba(148, 163, 184, 0.3)' },
                   ]}
                 >
-                  {userData.bio ? userData.bio : 'No Bio'}
+                  {currentUser.bio ? currentUser.bio : 'No Bio'}
                 </Text>
               </View>
             </View>

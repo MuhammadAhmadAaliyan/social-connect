@@ -14,6 +14,9 @@ import { Entypo, AntDesign, FontAwesome, Feather } from '@expo/vector-icons';
 import Swiper from 'react-native-swiper';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearError, fetchPosts, toggleLike } from '../redux/slices/postsSlice';
+import { RootState, AppDispatch } from '../redux/store';
 
 //SCREEN TYPES
 import { RootStackParamList } from '../navigation/routesType';
@@ -21,16 +24,7 @@ import { RootStackParamList } from '../navigation/routesType';
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 //AUTH COMPONENTS
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy,
-  doc,
-  updateDoc,
-  arrayRemove,
-  arrayUnion,
-} from 'firebase/firestore';
+import { doc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 //OTHER COMPONENTS
@@ -38,9 +32,10 @@ import Loading from '../utils/Loading';
 import StatusModal from '../utils/StatusModal';
 
 const HomeScreen = () => {
-  //HOOKS
-  const [posts, setPosts] = useState<any>();
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { posts, loading, error } = useSelector(
+    (state: RootState) => state.posts,
+  );
   const [modalVisible, setModalVisible] = useState(false);
   const [modalHeader, setModalHeader] = useState('');
   const [modalMessage, setModalMessage] = useState('');
@@ -50,43 +45,90 @@ const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp>();
 
   //FETCHING POSTS FROM DATABASE
-  const getFeeds = async () => {
-    try {
-      const postsSnap = await getDocs(
-        query(collection(db, 'posts'), orderBy('createdAt', 'desc')),
-      );
+  useEffect(() => {
+    dispatch(fetchPosts());
+  }, []);
 
-      const posts = postsSnap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+  //SHOW ERROR IF ANY ERROR OCCURS
+  useEffect(() => {
+    if (error) {
+      const getError = async () => {
+        setModalHeader('Error');
+        setModalMessage('Unable to load posts. Try again later.');
+        setModalVisible(true);
+        dispatch(clearError());
+      };
 
-      const usersSnap = await getDocs(collection(db, 'users'));
-
-      const users = usersSnap.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      const finalPosts = posts.map((post: any) => {
-        const user = users.find((u) => u.id === post.userId);
-        return {
-          ...post,
-          user: user || null,
-        };
-      });
-
-      setPosts(finalPosts);
-    } catch (err) {
-      console.log(err);
-      setModalHeader('Error');
-      setModalMessage('Unable to load posts. Try again later');
-      setLoading(false);
-      setModalVisible(true);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+      getError();
     }
+  }, [error]);
+
+  // const getFeeds = async () => {
+  //   try {
+  //     const postsSnap = await getDocs(
+  //       query(collection(db, 'posts'), orderBy('createdAt', 'desc')),
+  //     );
+
+  //     const posts = postsSnap.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+
+  //     const usersSnap = await getDocs(collection(db, 'users'));
+
+  //     const users = usersSnap.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
+
+  //     const finalPosts = posts.map((post: any) => {
+  //       const user = users.find((u) => u.id === post.userId);
+  //       return {
+  //         ...post,
+  //         user: user || null,
+  //       };
+  //     });
+
+  //     setPosts(finalPosts);
+  //   } catch (err) {
+  //     console.log(err);
+  //     setModalHeader('Error');
+  //     setModalMessage('Unable to load posts. Try again later');
+  //     setLoading(false);
+  //     setModalVisible(true);
+  //   } finally {
+  //     setLoading(false);
+  //     setRefreshing(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   const loadFeeds = async () => {
+  //     await getFeeds();
+  //   };
+
+  //   loadFeeds();
+  // }, []);
+
+  //FORMAT TIME METHOD
+  const getTimeAgo = (timestamp: any) => {
+    if (!timestamp) return '';
+
+    const date =
+      typeof timestamp === 'string'
+        ? new Date(timestamp)
+        : timestamp?.toDate
+          ? timestamp.toDate()
+          : new Date(timestamp);
+
+    const now: any = new Date();
+    const diff = Math.floor((now - date) / 1000);
+
+    if (diff < 10) return 'Just now';
+    if (diff < 60) return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
   };
 
   //METHOD FOR HANDLING LIKES/UNLIKES
@@ -99,19 +141,8 @@ const HomeScreen = () => {
     const alreadyLiked = post.likes.includes(userId);
 
     //UPDATE IN UI
-    setPosts((prevPosts: any) =>
-      prevPosts.map((p: any) => {
-        if (p.id === postId) {
-          return {
-            ...p,
-            likes: alreadyLiked
-              ? p.likes.filter((id: any) => id !== userId)
-              : [...p.likes, userId],
-          };
-        }
-        return p;
-      }),
-    );
+    dispatch(toggleLike({ postId, userId }));
+
     try {
       //UPDATE IN BACKEND
       await updateDoc(postRef, {
@@ -121,44 +152,8 @@ const HomeScreen = () => {
       console.log(err);
 
       //REVERT CHANGES IN UI IF BACKEND FAILS
-      setPosts((prevPosts: any) =>
-        prevPosts.map((p: any) => {
-          if (p.id === postId) {
-            return {
-              ...p,
-              likes: alreadyLiked
-                ? [...p.likes, userId]
-                : p.likes.filter((id: any) => id !== userId),
-            };
-          }
-          return p;
-        }),
-      );
+      dispatch(toggleLike({ postId, userId }));
     }
-  };
-
-  useEffect(() => {
-    const loadFeeds = async () => {
-      await getFeeds();
-    };
-
-    loadFeeds();
-  }, []);
-
-  //FORMAT TIME METHOD
-  const getTimeAgo = (timestamp: any) => {
-    if (!timestamp) return '';
-
-    const date = timestamp.toDate();
-    const now: any = new Date();
-
-    const diff = Math.floor((now - date) / 1000);
-
-    if (diff < 60) return `${diff}s ago`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-
-    return `${Math.floor(diff / 86400)}d ago`;
   };
 
   //METHOD FOR GETTING USER NAME INITIALS
@@ -172,6 +167,22 @@ const HomeScreen = () => {
     }
 
     return (words[0][0] + words[1][0]).toUpperCase();
+  };
+
+  //FORMAT LIKES/UNLIKES COMMENTS COUNT
+  const formatCount = (count: number): string => {
+    if (count < 1000) {
+      return count.toString(); // 999
+    } else if (count < 1000000) {
+      const result = count / 1000;
+      return result % 1 === 0 ? `${result}K` : `${result.toFixed(1)}K`; // 1K, 1.5K
+    } else if (count < 1000000000) {
+      const result = count / 1000000;
+      return result % 1 === 0 ? `${result}M` : `${result.toFixed(1)}M`; // 1M, 1.5M
+    } else {
+      const result = count / 1000000000;
+      return result % 1 === 0 ? `${result}B` : `${result.toFixed(1)}B`; // 1B, 1.5B
+    }
   };
 
   //RENDER ITEM FUNCTION
@@ -246,23 +257,34 @@ const HomeScreen = () => {
               }
             />
           </Pressable>
-          <Text style={styles.counterText}>{item.likes.length}</Text>
+          <Text style={styles.counterText}>
+            {formatCount(item.likes.length)}
+          </Text>
         </View>
         <View style={styles.likeAndCommentButton}>
-          <Pressable>
+          <Pressable
+            onPress={() => navigation.navigate('Comment', { postId: item.id })}
+          >
             <Feather name={'message-circle'} size={22} color={'#ffffff'} />
           </Pressable>
-          <Text style={styles.counterText}>23</Text>
+          <Text style={styles.counterText}>
+            {formatCount(item.commentsCount)}
+          </Text>
         </View>
       </View>
     </View>
   );
 
   //HANDLE REFRESH
-  const handleRefresh = () => {
-    setLoading(true);
+  const handleRefresh = async () => {
     setRefreshing(true);
-    getFeeds();
+    try {
+      await dispatch(fetchPosts()).unwrap();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   return (

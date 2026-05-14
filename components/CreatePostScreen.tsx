@@ -16,9 +16,12 @@ import Swiper from 'react-native-swiper';
 import * as ImagePicker from 'expo-image-picker';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { addPost } from '../redux/slices/postsSlice';
+import { RootState, AppDispatch } from '../redux/store';
 
 //AUTH COMPONENTS
-import { db, auth } from '../firebase';
+import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 //OTHER COMPONENTS
@@ -38,6 +41,8 @@ const CreatePostScreen = () => {
   const [modalHeader, setModalHeader] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const MAX_CHARS = 150;
+  const dispatch = useDispatch<AppDispatch>();
+  const { currentUser } = useSelector((state: RootState) => state.user);
 
   //SETUP NAVIGATION
   const navigation = useNavigation<NavigationProp>();
@@ -110,7 +115,7 @@ const CreatePostScreen = () => {
   //METHOD FOR HANDLING CREATING POST
   const createPost = async () => {
     try {
-      const userId = auth.currentUser?.uid;
+      const userId = currentUser?.id;
 
       let imageUrls: any;
 
@@ -120,13 +125,26 @@ const CreatePostScreen = () => {
         imageUrls = [];
       }
 
-      await addDoc(collection(db, 'posts'), {
+      const docRef = await addDoc(collection(db, 'posts'), {
         userId: userId,
         postText: postText,
         postImages: imageUrls,
         createdAt: serverTimestamp(),
         likes: [],
       });
+
+      dispatch(
+        addPost({
+          id: docRef.id,
+          userId: userId,
+          postText: postText,
+          postImages: imageUrls,
+          createdAt: { toDate: () => new Date() }, // temp timestamp
+          likes: [],
+          commentsCount: 0,
+          user: currentUser,
+        }),
+      );
 
       setModalHeader('Success');
       setModalMessage('Post created successfully');
@@ -141,7 +159,10 @@ const CreatePostScreen = () => {
 
   return (
     <>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView
+        style={{ flex: 1 }}
+        edges={{ top: 'off', bottom: 'additive' }}
+      >
         {/*HEADER*/}
         <View style={styles.header}>
           <Pressable style={styles.closeButton}>
@@ -169,7 +190,7 @@ const CreatePostScreen = () => {
             <Text
               style={[
                 styles.postButtonText,
-                postText.length == 0 && { color: '#64748B' },
+                !postText.trim() && { color: '#64748B' },
               ]}
             >
               Post
@@ -218,14 +239,16 @@ const CreatePostScreen = () => {
           >
             <Text style={styles.subText}>Images (Optional):</Text>
             {images.length > 0 && (
-              <MaterialIcons
-                name={'delete-outline'}
-                size={25}
-                color={'#6366F1'}
-                onPress={() => {
-                  setImages([]);
-                }}
-              />
+              <Pressable>
+                <MaterialIcons
+                  name={'delete-outline'}
+                  size={25}
+                  color={'#6366F1'}
+                  onPress={() => {
+                    setImages([]);
+                  }}
+                />
+              </Pressable>
             )}
           </View>
           {Array.isArray(images) && images.length > 0 ? (

@@ -106,7 +106,10 @@ const SignupScreen = () => {
 
   return (
     <>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={styles.container}
+        edges={{ top: 'off', bottom: 'additive' }}
+      >
         <ScrollView showsVerticalScrollIndicator={false}>
           {/*LOGO*/}
           <Logo name={'link'} size={40} />
