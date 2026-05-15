@@ -161,7 +161,7 @@ const CreatePostScreen = () => {
     <>
       <SafeAreaView
         style={{ flex: 1 }}
-        edges={{ top: 'off', bottom: 'additive' }}
+        edges={{ top: 'additive', bottom: 'additive' }}
       >
         {/*HEADER*/}
         <View style={styles.header}>

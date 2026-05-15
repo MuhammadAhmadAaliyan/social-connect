@@ -33,6 +33,9 @@ const AuthNavigator = () => (
     screenOptions={{
       headerShown: false,
       contentStyle: { flex: 1, backgroundColor: '#0F172A' },
+      animation: 'ios_from_right',
+      gestureEnabled: true,
+      gestureDirection: 'horizontal',
     }}
   >
     <Stack.Screen name="Login" component={LoginScreen} />
@@ -46,6 +49,9 @@ const AppNavigator = () => (
     screenOptions={{
       headerShown: false,
       contentStyle: { flex: 1, backgroundColor: '#0F172A' },
+      animation: 'fade',
+      gestureEnabled: true,
+      gestureDirection: 'horizontal',
     }}
   >
     <Stack.Screen name="MainTabs" component={TabNavigator} />
@@ -66,7 +72,7 @@ const Navigation = () => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
-        // FETCH USER DATA AND STORE IN
+        // FETCH USER DATA AND STORE IN REDUX
         await dispatch(fetchCurrentUser(firebaseUser.uid));
       } else {
         setUser(null);
@@ -86,7 +92,25 @@ const Navigation = () => {
     );
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      theme={{
+        dark: true,
+        fonts: {
+          regular: { fontFamily: 'Inter', fontWeight: '400' },
+          medium: { fontFamily: 'Inter', fontWeight: '500' },
+          bold: { fontFamily: 'Inter', fontWeight: '700' },
+          heavy: { fontFamily: 'Inter', fontWeight: '900' },
+        },
+        colors: {
+          background: '#0F172A',
+          primary: '#ffffff',
+          card: '#0F172A',
+          text: '#ffffff',
+          border: '#1E293B',
+          notification: '#ffffff',
+        },
+      }}
+    >
       {user ? <AppNavigator /> : <AuthNavigator />}
       <StatusBar style="light" />
     </NavigationContainer>
@@ -95,7 +119,7 @@ const Navigation = () => {
 
 export default function App() {
   return (
-    <SafeAreaProvider style={{ flex: 1 }}>
+    <SafeAreaProvider style={{ flex: 1, backgroundColor: '#0F172A' }}>
       <Provider store={store}>
         <Navigation />
       </Provider>

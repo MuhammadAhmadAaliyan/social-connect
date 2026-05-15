@@ -1,5 +1,10 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  responsiveHeight,
+  responsiveFontSize,
+  responsiveWidth,
+} from 'react-native-responsive-dimensions';
 
 import { Feather } from '@expo/vector-icons';
 
@@ -22,14 +27,19 @@ export default function TabNavigator() {
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
-          sceneStyle: { flex: 1, backgroundColor: '#0F172A' },
+          sceneStyle: {
+            flex: 1,
+            backgroundColor: '#0F172A',
+          },
+
           tabBarStyle: {
             backgroundColor: '#0F172A',
             borderTopColor: '#1e293b',
-            borderTopWidth: 0.6,
-            height: 75,
-            paddingTop: 10,
+            borderTopWidth: responsiveWidth(0.15),
+            height: responsiveHeight(10.5),
+            paddingTop: responsiveHeight(1.2),
           },
+
           tabBarIcon: ({ color, focused }) => {
             let iconName: any;
 
@@ -38,14 +48,21 @@ export default function TabNavigator() {
             else if (route.name === 'Settings') iconName = 'settings';
 
             return (
-              <Feather name={iconName} size={focused ? 26 : 22} color={color} />
+              <Feather
+                name={iconName}
+                size={
+                  focused ? responsiveFontSize(3.2) : responsiveFontSize(2.8)
+                }
+                color={color}
+              />
             );
           },
 
           tabBarActiveTintColor: '#ffffff',
           tabBarInactiveTintColor: '#94a3b8',
+
           tabBarLabelStyle: {
-            fontSize: 12,
+            fontSize: responsiveFontSize(1.6),
             fontWeight: '500',
           },
         })}

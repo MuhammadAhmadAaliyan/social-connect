@@ -15,8 +15,18 @@ import Swiper from 'react-native-swiper';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import { clearError, fetchPosts, toggleLike } from '../redux/slices/postsSlice';
+import {
+  clearError,
+  fetchPosts,
+  toggleLike,
+  setPosts,
+} from '../redux/slices/postsSlice';
 import { RootState, AppDispatch } from '../redux/store';
+import {
+  responsiveWidth,
+  responsiveHeight,
+  responsiveFontSize,
+} from 'react-native-responsive-dimensions';
 
 //SCREEN TYPES
 import { RootStackParamList } from '../navigation/routesType';
@@ -24,7 +34,17 @@ import { RootStackParamList } from '../navigation/routesType';
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 //AUTH COMPONENTS
-import { doc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
+import {
+  doc,
+  updateDoc,
+  arrayRemove,
+  arrayUnion,
+  getDocs,
+  onSnapshot,
+  query,
+  collection,
+  orderBy,
+} from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
 //OTHER COMPONENTS
@@ -33,23 +53,62 @@ import StatusModal from '../utils/StatusModal';
 
 const HomeScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { posts, loading, error } = useSelector(
-    (state: RootState) => state.posts,
-  );
+  const { posts, error } = useSelector((state: RootState) => state.posts);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalHeader, setModalHeader] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+  const [firstLoad, setFirstLoad] = useState(true);
 
   //SETUP NAVIGATION
   const navigation = useNavigation<NavigationProp>();
 
   //FETCHING POSTS FROM DATABASE
   useEffect(() => {
-    dispatch(fetchPosts());
+    const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+
+    // REAL TIME LISTENER
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
+      try {
+        const posts = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate().toISOString() || null,
+          };
+        });
+
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const users = usersSnap.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate().toISOString() || null,
+          };
+        });
+
+        const finalPosts = posts.map((post: any) => ({
+          ...post,
+          user: users.find((u: any) => u.id === post.userId) || null,
+        }));
+        dispatch(setPosts(finalPosts));
+      } catch (err) {
+        console.log(err);
+        setModalHeader('Error');
+        setModalMessage('Unable to load posts. Try again later');
+        setFirstLoad(false);
+        setModalVisible(true);
+      } finally {
+        setFirstLoad(false);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  //SHOW ERROR IF ANY ERROR OCCURS
+  //SHOW ERROR IF ANY ERROR OCCURS IN REFRESH
   useEffect(() => {
     if (error) {
       const getError = async () => {
@@ -304,7 +363,7 @@ const HomeScreen = () => {
         </View>
         <View style={styles.seperatorLine} />
         {/*POST AREA*/}
-        {loading ? (
+        {firstLoad ? (
           <Loading />
         ) : (
           <FlatList
@@ -312,7 +371,12 @@ const HomeScreen = () => {
             renderItem={renderItem}
             keyExtractor={(item, index) => index.toString()}
             ItemSeparatorComponent={() => (
-              <View style={[styles.seperatorLine, { borderWidth: 1 }]} />
+              <View
+                style={[
+                  styles.seperatorLine,
+                  { borderWidth: responsiveWidth(0.25) },
+                ]}
+              />
             )}
             refreshControl={
               <RefreshControl
@@ -340,62 +404,84 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
   logoContainer: {
-    width: 50,
-    height: 50,
+    width: responsiveWidth(13),
+    height: responsiveWidth(13),
     backgroundColor: '#202652',
-    borderRadius: 18,
+    borderRadius: responsiveWidth(5),
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   logoAndText: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 20,
+    gap: responsiveWidth(5),
   },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: responsiveWidth(5),
+    paddingVertical: responsiveHeight(2),
     alignItems: 'center',
   },
+
   headerText: {
-    fontSize: 24,
+    fontSize: responsiveFontSize(3),
     fontFamily: 'Inter',
     fontWeight: 'bold',
     color: '#ffffff',
     includeFontPadding: false,
     textAlignVertical: 'center',
   },
+
   seperatorLine: {
-    borderBottomWidth: 0.6,
+    borderBottomWidth: responsiveWidth(0.15),
     borderColor: '#1e293b',
   },
-  userProfileContainer: { flexDirection: 'row', gap: 20 },
+
+  userProfileContainer: {
+    flexDirection: 'row',
+    gap: responsiveWidth(5),
+  },
+
   userImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: responsiveWidth(13),
+    height: responsiveWidth(13),
+    borderRadius: responsiveWidth(6.5),
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   profileInitials: {
     fontFamily: 'Inter',
     fontWeight: '800',
     color: '#ffffff',
-    fontSize: 15,
+    fontSize: responsiveFontSize(1.8),
   },
+
   userName: {
     fontFamily: 'Inter',
     fontWeight: '800',
-    fontSize: 16,
+    fontSize: responsiveFontSize(2),
     color: '#ffffff',
   },
-  timeStamp: { fontFamily: 'Inter', color: '#7C99AE' },
-  postText: { fontFamily: 'Inter', color: '#ffffff', fontSize: 18 },
+
+  timeStamp: {
+    fontFamily: 'Inter',
+    color: '#7C99AE',
+    fontSize: responsiveFontSize(1.8),
+  },
+
+  postText: {
+    fontFamily: 'Inter',
+    color: '#ffffff',
+    fontSize: responsiveFontSize(2.2),
+  },
+
   sliderContainer: {
-    height: 300,
-    marginTop: 20,
+    height: responsiveHeight(40),
+    marginTop: responsiveHeight(2.5),
   },
 
   postImageContainer: {
@@ -406,15 +492,26 @@ const styles = StyleSheet.create({
 
   postImage: {
     width: '100%',
-    height: 300,
-    borderRadius: 40,
+    height: responsiveHeight(40),
+    borderRadius: responsiveWidth(10),
   },
+
   likesUnlikesContainer: {
-    paddingTop: 30,
+    paddingTop: responsiveHeight(4),
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 30,
+    gap: responsiveWidth(7),
   },
-  likeAndCommentButton: { flexDirection: 'row', gap: 15, alignItems: 'center' },
-  counterText: { fontFamily: 'Inter', fontSize: 16, color: '#7C99AE' },
+
+  likeAndCommentButton: {
+    flexDirection: 'row',
+    gap: responsiveWidth(4),
+    alignItems: 'center',
+  },
+
+  counterText: {
+    fontFamily: 'Inter',
+    fontSize: responsiveFontSize(2),
+    color: '#7C99AE',
+  },
 });

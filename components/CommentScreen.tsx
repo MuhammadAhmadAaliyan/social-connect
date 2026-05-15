@@ -15,6 +15,11 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
+import {
+  responsiveHeight,
+  responsiveWidth,
+  responsiveFontSize,
+} from 'react-native-responsive-dimensions';
 
 //SCREEN TYPES
 import { RootStackParamList } from '../navigation/routesType';
@@ -54,7 +59,6 @@ const CommentScreen = ({ route }: any) => {
 
   const postId = route.params?.postId;
 
-  //METHOD FOR GETTING CURRENT USER
   //FORMAT TIME METHOD
   const getTimeAgo = (timestamp: any) => {
     if (!timestamp) return '';
@@ -103,7 +107,7 @@ const CommentScreen = ({ route }: any) => {
       )}
       {/*COMMENT CONTENT*/}
       <View style={styles.commentContent}>
-        <View style={{ flexDirection: 'row', gap: 10 }}>
+        <View style={{ flexDirection: 'row', gap: responsiveWidth(2.5) }}>
           <Text style={styles.username}>{item.user?.username}</Text>
           <Text style={styles.timestamp}>{getTimeAgo(item.createdAt)}</Text>
         </View>
@@ -232,7 +236,10 @@ const CommentScreen = ({ route }: any) => {
             <FlatList
               data={comments}
               keyExtractor={(item: any) => item.id}
-              contentContainerStyle={{ padding: 20, flexGrow: 1 }}
+              contentContainerStyle={{
+                padding: responsiveWidth(5),
+                flexGrow: 1,
+              }}
               ListEmptyComponent={
                 <View style={styles.emptyContainer}>
                   <Text style={styles.emptyText}>No comments yet</Text>
@@ -288,14 +295,15 @@ export default CommentScreen;
 
 const styles = StyleSheet.create({
   header: {
-    padding: 20,
-    paddingTop: 50,
-    paddingBottom: 16,
+    padding: responsiveWidth(5),
+    paddingTop: responsiveHeight(6),
+    paddingBottom: responsiveHeight(2),
     flexDirection: 'row',
     alignItems: 'center',
   },
+
   headerText: {
-    fontSize: 24,
+    fontSize: responsiveFontSize(3),
     fontFamily: 'Inter',
     fontWeight: 'bold',
     color: '#ffffff',
@@ -304,97 +312,111 @@ const styles = StyleSheet.create({
     right: 0,
     textAlign: 'center',
   },
+
   headerTextContainer: {
     position: 'absolute',
     left: 0,
     right: 0,
     alignItems: 'center',
   },
+
   seperatorLine: {
-    borderBottomWidth: 0.6,
+    borderBottomWidth: responsiveWidth(0.15),
     borderColor: '#1e293b',
   },
+
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   emptyText: {
     color: '#ffffff',
-    fontSize: 18,
+    fontSize: responsiveFontSize(2.2),
     fontWeight: 'bold',
     fontFamily: 'Inter',
   },
+
   emptySubText: {
     color: '#475569',
-    fontSize: 14,
+    fontSize: responsiveFontSize(1.8),
     fontFamily: 'Inter',
-    marginTop: 5,
+    marginTop: responsiveHeight(0.6),
   },
+
   commentContainer: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: responsiveHeight(2.5),
     alignItems: 'flex-start',
   },
+
   userImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: responsiveWidth(10),
+    height: responsiveWidth(10),
+    borderRadius: responsiveWidth(5),
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: responsiveWidth(2.5),
   },
+
   initials: {
     color: '#ffffff',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: responsiveFontSize(2),
   },
+
   commentContent: {
     flex: 1,
     backgroundColor: '#1e293b',
-    borderRadius: 12,
-    padding: 10,
+    borderRadius: responsiveWidth(3),
+    padding: responsiveWidth(3),
   },
+
   username: {
     color: '#ffffff',
     fontWeight: 'bold',
     fontFamily: 'Inter',
-    fontSize: 14,
-    marginBottom: 4,
+    fontSize: responsiveFontSize(1.8),
+    marginBottom: responsiveHeight(0.5),
   },
+
   commentText: {
     color: '#ffffff',
     fontFamily: 'Inter',
-    fontSize: 14,
+    fontSize: responsiveFontSize(1.8),
   },
+
   timestamp: {
     color: '#475569',
     fontFamily: 'Inter',
-    fontSize: 12,
-    //marginTop: 4,
+    fontSize: responsiveFontSize(1.6),
   },
+
   inputContainer: {
     flexDirection: 'row',
-    padding: 16,
+    padding: responsiveWidth(4),
     alignItems: 'center',
     backgroundColor: '#0F172A',
   },
+
   input: {
     flex: 1,
     backgroundColor: '#1e293b',
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    borderRadius: responsiveWidth(5),
+    paddingHorizontal: responsiveWidth(4),
+    paddingVertical: responsiveHeight(1.2),
     color: '#ffffff',
     fontFamily: 'Inter',
-    fontSize: 14,
-    marginRight: 10,
-    maxHeight: 100,
+    fontSize: responsiveFontSize(1.8),
+    marginRight: responsiveWidth(2.5),
+    maxHeight: responsiveHeight(12),
   },
+
   sendButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: responsiveWidth(11),
+    height: responsiveWidth(11),
+    borderRadius: responsiveWidth(5.5),
     backgroundColor: '#6366F1',
     justifyContent: 'center',
     alignItems: 'center',

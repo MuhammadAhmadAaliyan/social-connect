@@ -12,6 +12,11 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { FontAwesome5, FontAwesome } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  responsiveHeight,
+  responsiveWidth,
+  responsiveFontSize,
+} from 'react-native-responsive-dimensions';
 
 //AUTH COMPONENTS
 import { auth } from '../firebase';
@@ -152,49 +157,58 @@ export default ForgotPasswordScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    paddingTop: 50,
-    paddingBottom: 20,
+    padding: responsiveWidth(5),
+    paddingTop: responsiveHeight(6),
+    paddingBottom: responsiveHeight(2.5),
   },
+
   logo: {
-    width: 70,
-    height: 70,
+    width: responsiveWidth(18),
+    height: responsiveWidth(18),
     backgroundColor: '#202652',
-    top: 50,
-    borderRadius: 22,
+    top: responsiveHeight(6),
+    borderRadius: responsiveWidth(5.5),
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: responsiveHeight(2.5),
   },
+
   welcomeText: {
-    fontSize: 36,
+    fontSize: responsiveFontSize(4.5),
     fontFamily: 'Inter',
     fontWeight: 'bold',
     color: '#ffffff',
-    paddingTop: 50,
+    paddingTop: responsiveHeight(6),
   },
+
   subText: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(2),
     fontFamily: 'Inter',
     color: '#7C99AE',
-    paddingTop: 10,
+    paddingTop: responsiveHeight(1.2),
   },
-  inputContainer: { paddingBottom: 15, paddingTop: 15 },
+
+  inputContainer: {
+    paddingBottom: responsiveHeight(2),
+    paddingTop: responsiveHeight(2),
+  },
+
   buttonText: {
-    fontSize: 20,
+    fontSize: responsiveFontSize(2.4),
     fontFamily: 'Inter',
     fontWeight: 'bold',
     color: '#ffffff',
   },
+
   button: {
     backgroundColor: '#6062e8',
-    height: 60,
-    padding: 8,
+    height: responsiveHeight(7.5),
+    padding: responsiveWidth(2),
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 20,
-    marginVertical: 20,
-    gap: 15,
+    borderRadius: responsiveWidth(5),
+    marginVertical: responsiveHeight(2.5),
+    gap: responsiveWidth(4),
   },
 });

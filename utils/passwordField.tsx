@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { View, StyleSheet, TextInput } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import {
+  responsiveHeight,
+  responsiveFontSize,
+  responsiveWidth,
+} from 'react-native-responsive-dimensions';
 
 type InputFieldProps = {
   value: string;
@@ -27,7 +32,13 @@ export default function PasswordField({
 
   return (
     <View style={styles.inputContainer}>
-      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 10 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+          gap: responsiveWidth(2.5),
+        }}
+      >
         <Feather
           name={'lock'}
           size={20}
@@ -59,19 +70,23 @@ export default function PasswordField({
 const styles = StyleSheet.create({
   inputContainer: {
     backgroundColor: '#1e293b',
-    marginTop: 10,
-    height: 50,
-    borderWidth: 0.5,
+    marginTop: responsiveHeight(1.2),
+    height: responsiveHeight(6.5),
+    borderWidth: responsiveWidth(0.1),
     borderColor: '#7C99AE',
-    borderRadius: 15,
+    borderRadius: responsiveWidth(4),
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 10,
+    paddingHorizontal: responsiveWidth(3),
   },
-  icon: { alignSelf: 'center' },
+
+  icon: {
+    alignSelf: 'center',
+  },
+
   input: {
     flexGrow: 1,
-    fontSize: 16,
+    fontSize: responsiveFontSize(2),
     color: '#ffffff',
     width: '82%',
   },

@@ -1,5 +1,10 @@
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import {
+  responsiveHeight,
+  responsiveWidth,
+  responsiveFontSize,
+} from 'react-native-responsive-dimensions';
 
 type InputFieldProps = {
   text: string;
@@ -32,20 +37,21 @@ export default function Button({
 
 const styles = StyleSheet.create({
   buttonText: {
-    fontSize: 20,
+    fontSize: responsiveFontSize(2.4),
     fontFamily: 'Inter',
     fontWeight: 'bold',
     color: '#ffffff',
   },
+
   button: {
     backgroundColor: '#6062e8',
-    height: 60,
-    padding: 8,
+    height: responsiveHeight(7.5),
+    padding: responsiveWidth(2),
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 20,
-    marginVertical: 20,
-    gap: 15,
+    borderRadius: responsiveWidth(5),
+    marginVertical: responsiveHeight(2.5),
+    gap: responsiveWidth(4),
   },
 });

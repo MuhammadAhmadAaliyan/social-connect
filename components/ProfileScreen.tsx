@@ -14,6 +14,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { updateCurrentUser } from '../redux/slices/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
+import {
+  responsiveHeight,
+  responsiveFontSize,
+  responsiveWidth,
+} from 'react-native-responsive-dimensions';
 
 //AUTH COMPONENTS
 import { auth, db } from '../firebase';
@@ -106,7 +111,7 @@ const ProfileScreen = () => {
         ) : (
           <ScrollView>
             {/*PROFILE PICTURE*/}
-            <View style={{ paddingHorizontal: 20 }}>
+            <View style={{ paddingHorizontal: responsiveWidth(5) }}>
               <Text style={styles.subText}>AVATAR</Text>
               {currentUser.userImage ? (
                 <Image
@@ -120,15 +125,17 @@ const ProfileScreen = () => {
               ) : (
                 <View style={styles.profileImage}>
                   <Text style={styles.nameInitials}>
-                    {getInitials(currentUser.username)}
+                    {getInitials(currentUser?.username)}
                   </Text>
                 </View>
               )}
             </View>
             {/*SEPERATOR LINE*/}
-            <View style={[styles.seperatorLine, { marginTop: 16 }]} />
+            <View
+              style={[styles.seperatorLine, { marginTop: responsiveHeight(2) }]}
+            />
             {/*BASIC INFORMATION*/}
-            <View style={{ paddingHorizontal: 20 }}>
+            <View style={{ paddingHorizontal: responsiveWidth(5) }}>
               <Text style={styles.subText}>BASIC INFORMATION</Text>
               <Text style={styles.text}>Full Name</Text>
               <View style={styles.infoFields}>
@@ -144,20 +151,22 @@ const ProfileScreen = () => {
               </View>
             </View>
             {/*SEPERATOR LINE*/}
-            <View style={[styles.seperatorLine, { marginTop: 16 }]} />
-            <View style={{ paddingHorizontal: 20 }}>
+            <View
+              style={[styles.seperatorLine, { marginTop: responsiveHeight(2) }]}
+            />
+            <View style={{ paddingHorizontal: responsiveWidth(5) }}>
               <Text style={styles.subText}>ABOUT</Text>
               <Text style={styles.text}>Bio</Text>
               <View
                 style={[
                   styles.infoFields,
-                  { height: 'auto', marginBottom: 16 },
+                  { height: 'auto', marginBottom: responsiveHeight(2) },
                 ]}
               >
                 <Text
                   style={[
                     styles.text,
-                    { paddingVertical: 10 },
+                    { paddingVertical: responsiveHeight(1.2) },
                     !currentUser.bio && { color: 'rgba(148, 163, 184, 0.3)' },
                   ]}
                 >
@@ -176,72 +185,81 @@ export default ProfileScreen;
 
 const styles = StyleSheet.create({
   header: {
-    padding: 20,
-    paddingTop: 50,
-    paddingBottom: 16,
+    padding: responsiveWidth(5),
+    paddingTop: responsiveHeight(6),
+    paddingBottom: responsiveHeight(2),
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+
   headerText: {
-    fontSize: 24,
+    fontSize: responsiveFontSize(3),
     fontFamily: 'Inter',
     fontWeight: 'bold',
     color: '#ffffff',
     textAlignVertical: 'center',
   },
+
   editButton: {
     backgroundColor: '#6366F1',
-    borderWidth: 0.5,
-    width: 50,
-    height: 50,
-    borderRadius: 15,
+    borderWidth: responsiveWidth(0.1),
+    width: responsiveWidth(13),
+    height: responsiveWidth(13),
+    borderRadius: responsiveWidth(4),
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   seperatorLine: {
-    borderBottomWidth: 0.6,
+    borderBottomWidth: responsiveWidth(0.15),
     borderColor: '#1e293b',
   },
+
   mainArea: {
     flex: 1,
   },
+
   profileImage: {
-    width: 120,
-    height: 120,
+    width: responsiveWidth(32),
+    height: responsiveWidth(32),
     backgroundColor: '#059669',
-    borderRadius: 60,
+    borderRadius: responsiveWidth(16),
     alignSelf: 'center',
-    marginVertical: 20,
-    marginBottom: 16,
+    marginVertical: responsiveHeight(2.5),
+    marginBottom: responsiveHeight(2),
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   nameInitials: {
     fontFamily: 'Inter',
-    fontSize: 50,
+    fontSize: responsiveFontSize(5),
     fontWeight: 'bold',
     color: '#ffffff',
   },
+
   subText: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(2),
     fontFamily: 'Inter',
     color: '#7C99AE',
-    paddingTop: 10,
-    fontWeight: 800,
+    paddingTop: responsiveHeight(1.2),
+    fontWeight: '800',
   },
+
   text: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(2),
     fontFamily: 'Inter',
     color: '#ffffff',
-    paddingVertical: 20,
+    paddingVertical: responsiveHeight(2.5),
   },
+
   infoFields: {
     backgroundColor: '#1e293b',
-    height: 50,
-    borderWidth: 0.5,
+    height: responsiveHeight(6.5),
+    borderWidth: responsiveWidth(0.1),
     borderColor: '#7C99AE',
-    borderRadius: 15,
-    paddingHorizontal: 10,
+    borderRadius: responsiveWidth(4),
+    paddingHorizontal: responsiveWidth(3),
     justifyContent: 'center',
   },
 });

@@ -1,5 +1,9 @@
 import { View, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import {
+  responsiveHeight,
+  responsiveWidth,
+} from 'react-native-responsive-dimensions';
 
 type InputFieldProps = {
   name: any;
@@ -16,13 +20,13 @@ export default function Logo({ name, size }: InputFieldProps) {
 
 const styles = StyleSheet.create({
   logo: {
-    width: 70,
-    height: 70,
+    width: responsiveWidth(18),
+    height: responsiveWidth(18),
     backgroundColor: '#202652',
-    top: 50,
-    borderRadius: 22,
+    top: responsiveHeight(6),
+    borderRadius: responsiveWidth(5.5),
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: responsiveHeight(2.5),
   },
 });

@@ -11,6 +11,11 @@ import { Formik } from 'formik';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  responsiveHeight,
+  responsiveWidth,
+  responsiveFontSize,
+} from 'react-native-responsive-dimensions';
 
 //AUTH COMPONENTS
 import {
@@ -248,34 +253,42 @@ export default SignupScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    paddingTop: 50,
-    paddingBottom: 20,
+    padding: responsiveWidth(5),
+    paddingTop: responsiveHeight(6),
+    paddingBottom: responsiveHeight(2.5),
   },
+
   welcomeText: {
-    fontSize: 36,
+    fontSize: responsiveFontSize(4.5),
     fontFamily: 'Inter',
     fontWeight: 'bold',
     color: '#ffffff',
-    paddingTop: 50,
+    paddingTop: responsiveHeight(6),
   },
+
   subText: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(2),
     fontFamily: 'Inter',
     color: '#7C99AE',
-    paddingTop: 10,
+    paddingTop: responsiveHeight(1.2),
   },
-  inputContainer: { paddingBottom: 15, paddingTop: 15 },
+
+  inputContainer: {
+    paddingBottom: responsiveHeight(2),
+    paddingTop: responsiveHeight(2),
+  },
+
   textContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 30,
+    paddingTop: responsiveHeight(4),
   },
+
   text: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(2),
     fontFamily: 'Inter',
     color: '#7C99AE',
-    lineHeight: 20,
+    lineHeight: responsiveHeight(2.5),
   },
 });

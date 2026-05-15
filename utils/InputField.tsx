@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { View, StyleSheet, TextInput } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import {
+  responsiveHeight,
+  responsiveWidth,
+  responsiveFontSize,
+} from 'react-native-responsive-dimensions';
 
 type InputFieldProps = {
   value: string;
@@ -42,18 +47,25 @@ export default function InputField({
 
 const styles = StyleSheet.create({
   inputContainer: {
-    //flex: 1,
     backgroundColor: '#1e293b',
-    marginTop: 10,
-    height: 50,
-    borderWidth: 0.5,
+    marginTop: responsiveHeight(1.2),
+    height: responsiveHeight(6.5),
+    borderWidth: responsiveWidth(0.1),
     borderColor: '#7C99AE',
-    borderRadius: 15,
+    borderRadius: responsiveWidth(4),
     flexDirection: 'row',
     justifyContent: 'center',
-    paddingHorizontal: 10,
-    gap: 10,
+    paddingHorizontal: responsiveWidth(3),
+    gap: responsiveWidth(2.5),
   },
-  icon: { alignSelf: 'center' },
-  input: { flex: 1, fontSize: 16, color: '#ffffff' },
+
+  icon: {
+    alignSelf: 'center',
+  },
+
+  input: {
+    flex: 1,
+    fontSize: responsiveFontSize(2),
+    color: '#ffffff',
+  },
 });

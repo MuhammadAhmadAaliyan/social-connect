@@ -40,6 +40,9 @@ const postsSlice = createSlice({
     error: null as string | null,
   },
   reducers: {
+    setPosts: (state, action) => {
+      state.posts = action.payload;
+    },
     addPost: (state, action) => {
       state.posts.unshift(action.payload);
     },
@@ -73,5 +76,5 @@ const postsSlice = createSlice({
   },
 });
 
-export const { addPost, toggleLike, clearError } = postsSlice.actions;
+export const { addPost, toggleLike, clearError, setPosts } = postsSlice.actions;
 export default postsSlice.reducer;

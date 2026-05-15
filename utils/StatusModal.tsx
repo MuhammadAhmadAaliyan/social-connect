@@ -6,6 +6,11 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
+import {
+  responsiveWidth,
+  responsiveHeight,
+  responsiveFontSize,
+} from 'react-native-responsive-dimensions';
 
 type InputFieldProps = {
   modalVisible: boolean;
@@ -52,36 +57,41 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: responsiveWidth(5),
   },
+
   modalContainer: {
     backgroundColor: '#0F172A',
-    padding: 20,
-    borderRadius: 15,
+    padding: responsiveWidth(5),
+    borderRadius: responsiveWidth(4),
     alignItems: 'center',
   },
+
   modalText: {
     fontFamily: 'Inter',
-    fontSize: 20,
+    fontSize: responsiveFontSize(2.4),
     color: '#7C99AE',
-    marginTop: 30,
+    marginTop: responsiveHeight(3),
   },
+
   modalHeader: {
-    fontSize: 25,
+    fontSize: responsiveFontSize(3),
     fontFamily: 'Inter',
     fontWeight: 'bold',
     color: '#ffffff',
   },
+
   modalButtonText: {
     fontFamily: 'Inter',
-    fontSize: 20,
+    fontSize: responsiveFontSize(2.4),
     color: '#6366F1',
     fontWeight: 'bold',
   },
+
   modalButton: {
     width: '100%',
-    paddingTop: 25,
-    paddingHorizontal: 15,
+    paddingTop: responsiveHeight(3),
+    paddingHorizontal: responsiveWidth(4),
     alignSelf: 'flex-end',
   },
 });

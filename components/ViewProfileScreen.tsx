@@ -3,6 +3,11 @@ import { View, Text, ScrollView, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from 'react-native-responsive-dimensions';
 
 //AUTH COMPONENTS
 import { db } from '../firebase';
@@ -93,7 +98,7 @@ const ViewProfileScreen = ({ route }: any) => {
         ) : (
           <ScrollView>
             {/*PROFILE PICTURE*/}
-            <View style={{ paddingHorizontal: 20 }}>
+            <View style={{ paddingHorizontal: responsiveWidth(5) }}>
               <Text style={styles.subText}>AVATAR</Text>
               {userData.userImage ? (
                 <Image
@@ -113,9 +118,11 @@ const ViewProfileScreen = ({ route }: any) => {
               )}
             </View>
             {/*SEPERATOR LINE*/}
-            <View style={[styles.seperatorLine, { marginTop: 16 }]} />
+            <View
+              style={[styles.seperatorLine, { marginTop: responsiveHeight(2) }]}
+            />
             {/*BASIC INFORMATION*/}
-            <View style={{ paddingHorizontal: 20 }}>
+            <View style={{ paddingHorizontal: responsiveWidth(5) }}>
               <Text style={styles.subText}>BASIC INFORMATION</Text>
               <Text style={styles.text}>Full Name</Text>
               <View style={styles.infoFields}>
@@ -131,20 +138,22 @@ const ViewProfileScreen = ({ route }: any) => {
               </View>
             </View>
             {/*SEPERATOR LINE*/}
-            <View style={[styles.seperatorLine, { marginTop: 16 }]} />
-            <View style={{ paddingHorizontal: 20 }}>
+            <View
+              style={[styles.seperatorLine, { marginTop: responsiveHeight(2) }]}
+            />
+            <View style={{ paddingHorizontal: responsiveWidth(5) }}>
               <Text style={styles.subText}>ABOUT</Text>
               <Text style={styles.text}>Bio</Text>
               <View
                 style={[
                   styles.infoFields,
-                  { height: 'auto', marginBottom: 16 },
+                  { height: 'auto', marginBottom: responsiveHeight(2) },
                 ]}
               >
                 <Text
                   style={[
                     styles.text,
-                    { paddingVertical: 10 },
+                    { paddingVertical: responsiveHeight(1.2) },
                     !userData.bio && { color: 'rgba(148, 163, 184, 0.3)' },
                   ]}
                 >
@@ -173,14 +182,15 @@ export default ViewProfileScreen;
 
 const styles = StyleSheet.create({
   header: {
-    padding: 20,
-    paddingTop: 50,
-    paddingBottom: 16,
+    padding: responsiveWidth(5),
+    paddingTop: responsiveHeight(6),
+    paddingBottom: responsiveHeight(2),
     flexDirection: 'row',
     alignItems: 'center',
   },
+
   headerText: {
-    fontSize: 24,
+    fontSize: responsiveFontSize(3),
     fontFamily: 'Inter',
     fontWeight: 'bold',
     color: '#ffffff',
@@ -189,56 +199,64 @@ const styles = StyleSheet.create({
     right: 0,
     textAlign: 'center',
   },
+
   profileTextContainer: {
     position: 'absolute',
     left: 0,
     right: 0,
     alignItems: 'center',
   },
+
   seperatorLine: {
-    borderBottomWidth: 0.6,
+    borderBottomWidth: responsiveWidth(0.15),
     borderColor: '#1e293b',
   },
+
   mainArea: {
     flex: 1,
   },
+
   profileImage: {
-    width: 120,
-    height: 120,
+    width: responsiveWidth(32),
+    height: responsiveWidth(32),
     backgroundColor: '#059669',
-    borderRadius: 60,
+    borderRadius: responsiveWidth(16),
     alignSelf: 'center',
-    marginVertical: 20,
-    marginBottom: 16,
+    marginVertical: responsiveHeight(2.5),
+    marginBottom: responsiveHeight(2),
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   nameInitials: {
     fontFamily: 'Inter',
-    fontSize: 50,
+    fontSize: responsiveFontSize(5),
     fontWeight: 'bold',
     color: '#ffffff',
   },
+
   subText: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(2),
     fontFamily: 'Inter',
     color: '#7C99AE',
-    paddingTop: 10,
-    fontWeight: 800,
+    paddingTop: responsiveHeight(1.2),
+    fontWeight: '800',
   },
+
   text: {
-    fontSize: 16,
+    fontSize: responsiveFontSize(2),
     fontFamily: 'Inter',
     color: '#ffffff',
-    paddingVertical: 20,
+    paddingVertical: responsiveHeight(2.5),
   },
+
   infoFields: {
     backgroundColor: '#1e293b',
-    height: 50,
-    borderWidth: 0.5,
+    height: responsiveHeight(6.5),
+    borderWidth: responsiveWidth(0.1),
     borderColor: '#7C99AE',
-    borderRadius: 15,
-    paddingHorizontal: 10,
+    borderRadius: responsiveWidth(4),
+    paddingHorizontal: responsiveWidth(3),
     justifyContent: 'center',
   },
 });
