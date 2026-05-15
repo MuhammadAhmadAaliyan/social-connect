@@ -10,7 +10,7 @@ import {
   Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Entypo, AntDesign, FontAwesome, Feather } from '@expo/vector-icons';
+import { Entypo, AntDesign, Feather } from '@expo/vector-icons';
 import Swiper from 'react-native-swiper';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -50,6 +50,7 @@ import { auth, db } from '../firebase';
 //OTHER COMPONENTS
 import Loading from '../utils/Loading';
 import StatusModal from '../utils/StatusModal';
+import LikeButton from '../utils/LikeButton';
 
 const HomeScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -122,53 +123,6 @@ const HomeScreen = () => {
     }
   }, [error]);
 
-  // const getFeeds = async () => {
-  //   try {
-  //     const postsSnap = await getDocs(
-  //       query(collection(db, 'posts'), orderBy('createdAt', 'desc')),
-  //     );
-
-  //     const posts = postsSnap.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-
-  //     const usersSnap = await getDocs(collection(db, 'users'));
-
-  //     const users = usersSnap.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-
-  //     const finalPosts = posts.map((post: any) => {
-  //       const user = users.find((u) => u.id === post.userId);
-  //       return {
-  //         ...post,
-  //         user: user || null,
-  //       };
-  //     });
-
-  //     setPosts(finalPosts);
-  //   } catch (err) {
-  //     console.log(err);
-  //     setModalHeader('Error');
-  //     setModalMessage('Unable to load posts. Try again later');
-  //     setLoading(false);
-  //     setModalVisible(true);
-  //   } finally {
-  //     setLoading(false);
-  //     setRefreshing(false);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const loadFeeds = async () => {
-  //     await getFeeds();
-  //   };
-
-  //   loadFeeds();
-  // }, []);
-
   //FORMAT TIME METHOD
   const getTimeAgo = (timestamp: any) => {
     if (!timestamp) return '';
@@ -234,13 +188,13 @@ const HomeScreen = () => {
       return count.toString(); // 999
     } else if (count < 1000000) {
       const result = count / 1000;
-      return result % 1 === 0 ? `${result}K` : `${result.toFixed(1)}K`; // 1K, 1.5K
+      return result % 1 === 0 ? `${result}K` : `${result.toFixed(1)}K`;
     } else if (count < 1000000000) {
       const result = count / 1000000;
-      return result % 1 === 0 ? `${result}M` : `${result.toFixed(1)}M`; // 1M, 1.5M
+      return result % 1 === 0 ? `${result}M` : `${result.toFixed(1)}M`;
     } else {
       const result = count / 1000000000;
-      return result % 1 === 0 ? `${result}B` : `${result.toFixed(1)}B`; // 1B, 1.5B
+      return result % 1 === 0 ? `${result}B` : `${result.toFixed(1)}B`;
     }
   };
 
@@ -304,22 +258,12 @@ const HomeScreen = () => {
       ) : null}
       {/*LIKES/UNLIKES & COMMENTS AREA*/}
       <View style={styles.likesUnlikesContainer}>
-        <View style={styles.likeAndCommentButton}>
-          <Pressable onPress={() => toggleLikes(item.id)}>
-            <FontAwesome
-              name={
-                item.likes.includes(auth.currentUser?.uid) ? 'heart' : 'heart-o'
-              }
-              size={22}
-              color={
-                item.likes.includes(auth.currentUser?.uid) ? 'red' : '#ffffff'
-              }
-            />
-          </Pressable>
-          <Text style={styles.counterText}>
-            {formatCount(item.likes.length)}
-          </Text>
-        </View>
+        <LikeButton
+          postId={item?.id}
+          liked={item.likes.includes(auth.currentUser?.uid)}
+          likeCount={item.likes.length}
+          onToggle={toggleLikes}
+        />
         <View style={styles.likeAndCommentButton}>
           <Pressable
             onPress={() => navigation.navigate('Comment', { postId: item.id })}
