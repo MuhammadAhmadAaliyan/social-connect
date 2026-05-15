@@ -8,7 +8,7 @@ export type RootStackParamList = {
   AuthGate: undefined;
   CreatePost: undefined;
   ViewProfile: { userId: string } | undefined;
-  Comment: { postId: string } | undefined;
+  Comment: { postId: string; postOwnerId: string } | undefined;
 };
 
 export type TabParamList = {

@@ -20,6 +20,7 @@ import {
   responsiveWidth,
   responsiveFontSize,
 } from 'react-native-responsive-dimensions';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 //SCREEN TYPES
 import { RootStackParamList } from '../navigation/routesType';
@@ -42,7 +43,9 @@ import {
   doc,
   increment,
 } from 'firebase/firestore';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
+//NOTIFICATION COMPONENT
+import { sendPushNotification } from '../utils/sendPushNotification';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -58,6 +61,7 @@ const CommentScreen = ({ route }: any) => {
   const { currentUser } = useSelector((state: RootState) => state.user);
 
   const postId = route.params?.postId;
+  const postOwnerId = route.params?.postOwnerId;
 
   //FORMAT TIME METHOD
   const getTimeAgo = (timestamp: any) => {
@@ -188,6 +192,11 @@ const CommentScreen = ({ route }: any) => {
       await updateDoc(doc(db, 'posts', postId), {
         commentsCount: increment(1),
       });
+      await sendPushNotification(
+        postOwnerId,
+        'New Comment',
+        `${currentUser.username} commented on your post`,
+      );
 
       setComments((prev: any) =>
         prev.map((c: any) => (c.id === tempId ? { ...c, id: docRef.id } : c)),

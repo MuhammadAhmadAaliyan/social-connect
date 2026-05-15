@@ -5,6 +5,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -115,122 +117,127 @@ const SignupScreen = () => {
         style={styles.container}
         edges={{ top: 'off', bottom: 'additive' }}
       >
-        <ScrollView showsVerticalScrollIndicator={false}>
-          {/*LOGO*/}
-          <Logo name={'link'} size={40} />
-          {/*WELCOME TEXT */}
-          <Text style={styles.welcomeText}>Social Connect</Text>
-          {/*SUBTEXT */}
-          <Text style={styles.subText}>
-            Create an account to join the network.
-          </Text>
-          {/*SIGNUP FORM*/}
+        <KeyboardAvoidingView
+          style={{ flex: 1, backgroundColor: '#0F172A' }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {/*LOGO*/}
+            <Logo name={'link'} size={40} />
+            {/*WELCOME TEXT */}
+            <Text style={styles.welcomeText}>Social Connect</Text>
+            {/*SUBTEXT */}
+            <Text style={styles.subText}>
+              Create an account to join the network.
+            </Text>
+            {/*SIGNUP FORM*/}
 
-          {/*INPUTS*/}
-          <Formik
-            initialValues={{
-              fullName: '',
-              email: '',
-              password: '',
-              confirmPassword: '',
-            }}
-            validationSchema={SignupSchema}
-            onSubmit={(values) => {
-              signUp(values.fullName, values.email, values.password);
-              setLoading(true);
-              setModalVisible(true);
-            }}
-          >
-            {({
-              handleChange,
-              handleBlur,
-              handleSubmit,
-              values,
-              errors,
-              touched,
-            }) => (
-              <>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.subText}>Full Name</Text>
-                  <InputField
-                    value={values.fullName}
-                    onChangeValue={handleChange('fullName')}
-                    onBlur={handleBlur('fullName')}
-                    keyboardType={'default'}
-                    placeholder={'John Doe'}
-                    iconName={'user'}
-                  />
-                  {touched.fullName && errors.fullName && (
-                    <Text style={{ color: 'red' }}>{errors.fullName}</Text>
-                  )}
-                </View>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.subText}>Email Address</Text>
-                  <InputField
-                    value={values.email}
-                    onChangeValue={handleChange('email')}
-                    onBlur={handleBlur('email')}
-                    keyboardType={'email-address'}
-                    placeholder={'you@example.com'}
-                    iconName={'mail'}
-                  />
-                  {touched.email && errors.email && (
-                    <Text style={{ color: 'red' }}>{errors.email}</Text>
-                  )}
-                </View>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.subText}>Password</Text>
-                  <PasswordField
-                    value={values.password}
-                    onChangeValue={handleChange('password')}
-                    onBlur={handleBlur('password')}
-                    keyboardType={'default'}
-                    placeholder={'••••••••'}
-                  />
-                  {touched.password && errors.password && (
-                    <Text style={{ color: 'red' }}>{errors.password}</Text>
-                  )}
-                </View>
-                <View style={styles.inputContainer}>
-                  <Text style={styles.subText}>Confirm Password</Text>
-                  <PasswordField
-                    value={values.confirmPassword}
-                    onChangeValue={handleChange('confirmPassword')}
-                    onBlur={handleBlur('confirmPassword')}
-                    keyboardType={'default'}
-                    placeholder={'••••••••'}
-                  />
-                  {touched.confirmPassword && errors.confirmPassword && (
-                    <Text style={{ color: 'red' }}>
-                      {errors.confirmPassword}
-                    </Text>
-                  )}
-                </View>
-                {/*BUTTON*/}
-                <Button
-                  text={'Create Account'}
-                  iconName={'arrow-right'}
-                  onPress={handleSubmit}
-                />
-              </>
-            )}
-          </Formik>
-          {/*ALREADY HAVE ACCOUNT SIGN IN*/}
-          <View style={styles.textContainer}>
-            <Text style={styles.text}>Already have an account? </Text>
-
-            <TouchableOpacity
-              onPress={() =>
-                navigation.reset({
-                  index: 0,
-                  routes: [{ name: 'Login' }],
-                })
-              }
+            {/*INPUTS*/}
+            <Formik
+              initialValues={{
+                fullName: '',
+                email: '',
+                password: '',
+                confirmPassword: '',
+              }}
+              validationSchema={SignupSchema}
+              onSubmit={(values) => {
+                signUp(values.fullName, values.email, values.password);
+                setLoading(true);
+                setModalVisible(true);
+              }}
             >
-              <Text style={[styles.text, { color: '#6366F1' }]}>Log in</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+              {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+              }) => (
+                <>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.subText}>Full Name</Text>
+                    <InputField
+                      value={values.fullName}
+                      onChangeValue={handleChange('fullName')}
+                      onBlur={handleBlur('fullName')}
+                      keyboardType={'default'}
+                      placeholder={'John Doe'}
+                      iconName={'user'}
+                    />
+                    {touched.fullName && errors.fullName && (
+                      <Text style={{ color: 'red' }}>{errors.fullName}</Text>
+                    )}
+                  </View>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.subText}>Email Address</Text>
+                    <InputField
+                      value={values.email}
+                      onChangeValue={handleChange('email')}
+                      onBlur={handleBlur('email')}
+                      keyboardType={'email-address'}
+                      placeholder={'you@example.com'}
+                      iconName={'mail'}
+                    />
+                    {touched.email && errors.email && (
+                      <Text style={{ color: 'red' }}>{errors.email}</Text>
+                    )}
+                  </View>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.subText}>Password</Text>
+                    <PasswordField
+                      value={values.password}
+                      onChangeValue={handleChange('password')}
+                      onBlur={handleBlur('password')}
+                      keyboardType={'default'}
+                      placeholder={'••••••••'}
+                    />
+                    {touched.password && errors.password && (
+                      <Text style={{ color: 'red' }}>{errors.password}</Text>
+                    )}
+                  </View>
+                  <View style={styles.inputContainer}>
+                    <Text style={styles.subText}>Confirm Password</Text>
+                    <PasswordField
+                      value={values.confirmPassword}
+                      onChangeValue={handleChange('confirmPassword')}
+                      onBlur={handleBlur('confirmPassword')}
+                      keyboardType={'default'}
+                      placeholder={'••••••••'}
+                    />
+                    {touched.confirmPassword && errors.confirmPassword && (
+                      <Text style={{ color: 'red' }}>
+                        {errors.confirmPassword}
+                      </Text>
+                    )}
+                  </View>
+                  {/*BUTTON*/}
+                  <Button
+                    text={'Create Account'}
+                    iconName={'arrow-right'}
+                    onPress={handleSubmit}
+                  />
+                </>
+              )}
+            </Formik>
+            {/*ALREADY HAVE ACCOUNT SIGN IN*/}
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>Already have an account? </Text>
+
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                  })
+                }
+              >
+                <Text style={[styles.text, { color: '#6366F1' }]}>Log in</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
       <StatusModal
         modalVisible={modalVisible}

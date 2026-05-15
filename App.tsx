@@ -9,6 +9,7 @@ import { store } from './redux/store';
 import { auth } from './firebase';
 import { fetchCurrentUser, clearCurrentUser } from './redux/slices/userSlice';
 import { AppDispatch } from './redux/store';
+import * as Notifications from 'expo-notifications';
 
 //SCREENS
 import SignupScreen from './components/SignupScreen';
@@ -23,8 +24,21 @@ import CommentScreen from './components/CommentScreen';
 //OTHER COMPONENTS
 import Loading from './utils/Loading';
 
+//NOTIFICATION COMPONENT
+import { registerForPushNotifications } from './utils/registerPushNotifications';
+
 //SCREEN TYPES
 import { RootStackParamList } from './navigation/routesType';
+
+//HANDLE NOTIFICATIONS
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -70,13 +84,17 @@ const Navigation = () => {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
-      if (firebaseUser) {
+      if (firebaseUser && firebaseUser.emailVerified) {
+        // ← add emailVerified
         setUser(firebaseUser);
-        // FETCH USER DATA AND STORE IN REDUX
         await dispatch(fetchCurrentUser(firebaseUser.uid));
+        try {
+          await registerForPushNotifications(firebaseUser.uid);
+        } catch (err) {
+          console.log('Push notification error:', err);
+        }
       } else {
         setUser(null);
-        // CLEAR USER FROM REDUX ON LOGOUT
         dispatch(clearCurrentUser());
       }
       setAuthReady(true);

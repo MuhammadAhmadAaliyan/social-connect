@@ -52,6 +52,9 @@ import Loading from '../utils/Loading';
 import StatusModal from '../utils/StatusModal';
 import LikeButton from '../utils/LikeButton';
 
+//NOTIFICATION COMPONENT
+import { sendPushNotification } from '../utils/sendPushNotification';
+
 const HomeScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { posts, error } = useSelector((state: RootState) => state.posts);
@@ -60,6 +63,7 @@ const HomeScreen = () => {
   const [modalMessage, setModalMessage] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
+  const { currentUser } = useSelector((state: RootState) => state.user);
 
   //SETUP NAVIGATION
   const navigation = useNavigation<NavigationProp>();
@@ -161,6 +165,14 @@ const HomeScreen = () => {
       await updateDoc(postRef, {
         likes: alreadyLiked ? arrayRemove(userId) : arrayUnion(userId),
       });
+
+      if (!alreadyLiked && post.userId !== userId) {
+        await sendPushNotification(
+          post.userId,
+          'New Like',
+          `${currentUser.username} liked your post`,
+        );
+      }
     } catch (err) {
       console.log(err);
 
@@ -266,7 +278,12 @@ const HomeScreen = () => {
         />
         <View style={styles.likeAndCommentButton}>
           <Pressable
-            onPress={() => navigation.navigate('Comment', { postId: item.id })}
+            onPress={() =>
+              navigation.navigate('Comment', {
+                postId: item.id,
+                postOwnerId: item?.user?.id,
+              })
+            }
           >
             <Feather name={'message-circle'} size={22} color={'#ffffff'} />
           </Pressable>

@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Alert,
 } from 'react-native';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -68,7 +67,11 @@ const LoginScreen = () => {
       const { user } = userCredentials;
 
       if (!user.emailVerified) {
-        Alert.alert('Email not verified yet!!');
+        setModalHeader('Verify Your Email');
+        setModalMessage(
+          'A verification link has been sent to your email. Please check your inbox and click the link to activate your account.',
+        );
+        setLoading(false);
         return;
       }
 
