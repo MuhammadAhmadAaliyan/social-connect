@@ -22,7 +22,7 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
     return {
       id: doc.id,
       ...data,
-      createdAt: data.createdAt?.toDate().toISOString() || null,
+      createdAt: data?.createdAt?.toDate?.().toISOString() || null,
     };
   });
 

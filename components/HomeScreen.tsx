@@ -99,10 +99,21 @@ const HomeScreen = () => {
           user: users.find((u: any) => u.id === post.userId) || null,
         }));
         dispatch(setPosts(finalPosts));
-      } catch (err) {
+      } catch (err: any) {
         console.log(err);
-        setModalHeader('Error');
-        setModalMessage('Unable to load posts. Try again later');
+        if (
+          err.message?.includes("Backend didn't respond") ||
+          err.message?.includes('network') ||
+          err.code === 'unavailable'
+        ) {
+          setModalHeader('Network Error');
+          setModalMessage(
+            'Slow connection. Please check your internet and try again.',
+          );
+        } else {
+          setModalHeader('Error');
+          setModalMessage('Unable to load posts. Try again later');
+        }
         setFirstLoad(false);
         setModalVisible(true);
       } finally {
