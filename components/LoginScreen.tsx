@@ -72,6 +72,7 @@ const LoginScreen = () => {
           'A verification link has been sent to your email. Please check your inbox and click the link to activate your account.',
         );
         setLoading(false);
+        console.log(user.emailVerified);
         return;
       }
 
@@ -79,6 +80,7 @@ const LoginScreen = () => {
 
       setLoading(false);
     } catch (err: any) {
+      console.log(err);
       setLoading(false);
       if (err.code === 'auth/invalid-credential') {
         setModalHeader('Wrong Credentials');
