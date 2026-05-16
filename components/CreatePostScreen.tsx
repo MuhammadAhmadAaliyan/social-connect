@@ -117,6 +117,13 @@ const CreatePostScreen = () => {
     try {
       const userId = currentUser?.id;
 
+      if (!userId) {
+        setModalHeader('Error');
+        setModalMessage('You must be logged in to create a post.');
+        setLoading(false);
+        return;
+      }
+
       let imageUrls: any;
 
       if (images.length > 0) {
@@ -131,6 +138,7 @@ const CreatePostScreen = () => {
         postImages: imageUrls,
         createdAt: serverTimestamp(),
         likes: [],
+        commentsCount: 0,
       });
 
       dispatch(
@@ -139,7 +147,7 @@ const CreatePostScreen = () => {
           userId: userId,
           postText: postText,
           postImages: imageUrls,
-          createdAt: { toDate: () => new Date() }, // temp timestamp
+          createdAt: new Date().toISOString(),
           likes: [],
           commentsCount: 0,
           user: currentUser,

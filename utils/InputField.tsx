@@ -14,6 +14,7 @@ type InputFieldProps = {
   onBlur?: (e: any) => void;
   placeholder?: string;
   iconName: any;
+  ref?: any;
 };
 
 export default function InputField({
@@ -23,6 +24,7 @@ export default function InputField({
   placeholder,
   iconName,
   onBlur,
+  ref,
 }: InputFieldProps) {
   return (
     <View style={styles.inputContainer}>
@@ -33,6 +35,7 @@ export default function InputField({
         style={styles.icon}
       />
       <TextInput
+        ref={ref}
         value={value}
         onChangeText={onChangeValue}
         style={styles.input}

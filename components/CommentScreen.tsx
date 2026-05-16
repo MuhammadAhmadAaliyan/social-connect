@@ -164,14 +164,17 @@ const CommentScreen = ({ route }: any) => {
   //METHOD FOR ADD COMMENT
   const addComment = async () => {
     if (!comment.trim()) return;
-    if (!currentUser) return;
+    if (!currentUser) {
+      console.log(currentUser);
+      return;
+    }
 
     const tempId = Date.now().toString();
     const tempComment = {
       id: tempId,
       userId: currentUser.id,
       commentText: comment.trim(),
-      createdAt: { toDate: () => new Date() },
+      createdAt: new Date().toISOString(),
       user: {
         userId: currentUser.id,
         username: currentUser?.username || null,
@@ -192,11 +195,14 @@ const CommentScreen = ({ route }: any) => {
       await updateDoc(doc(db, 'posts', postId), {
         commentsCount: increment(1),
       });
-      await sendPushNotification(
-        postOwnerId,
-        'New Comment',
-        `${currentUser.username} commented on your post`,
-      );
+
+      if (postOwnerId !== currentUser.id) {
+        await sendPushNotification(
+          postOwnerId,
+          'New Comment',
+          `${currentUser.username} commented on your post`,
+        );
+      }
 
       setComments((prev: any) =>
         prev.map((c: any) => (c.id === tempId ? { ...c, id: docRef.id } : c)),

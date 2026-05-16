@@ -85,7 +85,6 @@ const Navigation = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser && firebaseUser.emailVerified) {
-        // ← add emailVerified
         setUser(firebaseUser);
         await dispatch(fetchCurrentUser(firebaseUser.uid));
         try {

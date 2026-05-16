@@ -13,6 +13,8 @@ type InputFieldProps = {
   keyboardType?: any;
   placeholder?: string;
   onBlur?: (e: any) => void;
+  ref?: any;
+  onFocus?: () => void;
 };
 
 export default function PasswordField({
@@ -21,6 +23,8 @@ export default function PasswordField({
   keyboardType,
   placeholder,
   onBlur,
+  ref,
+  onFocus,
 }: InputFieldProps) {
   const [ispasswordVisible, setPasswordVisible] =
     React.useState<boolean>(false);
@@ -46,6 +50,8 @@ export default function PasswordField({
           style={styles.icon}
         />
         <TextInput
+          ref={ref}
+          onFocus={onFocus}
           value={value}
           onChangeText={onChangeValue}
           style={styles.input}

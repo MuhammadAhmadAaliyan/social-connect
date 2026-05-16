@@ -40,7 +40,6 @@ export const registerForPushNotifications = async (userId: string) => {
 
   // PASS projectId WHEN GETTING TOKEN
   const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
-  console.log('PUSH TOKEN:', token);
 
   await updateDoc(doc(db, 'users', userId), {
     pushToken: token,

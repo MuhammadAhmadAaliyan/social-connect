@@ -115,14 +115,12 @@ const EditProfileScreen = () => {
         mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [1, 1],
-        quality: 1,
+        quality: 0.7,
+        exif: false,
       });
 
       if (!result.canceled) {
         setProfileImage(result.assets[0].uri);
-        updateCurrentUser({
-          userImage: result.assets[0].uri || '',
-        });
       }
     } catch (err) {
       console.log(err);
@@ -152,10 +150,6 @@ const EditProfileScreen = () => {
 
       if (!result.canceled) {
         setProfileImage(result.assets[0].uri);
-
-        updateCurrentUser({
-          userImage: result.assets[0].uri || '',
-        });
       }
     } catch (err) {
       console.log(err);

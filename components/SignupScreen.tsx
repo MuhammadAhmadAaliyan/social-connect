@@ -1,13 +1,5 @@
-import * as React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { useState, useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { useNavigation } from '@react-navigation/native';
@@ -18,6 +10,7 @@ import {
   responsiveWidth,
   responsiveFontSize,
 } from 'react-native-responsive-dimensions';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 //AUTH COMPONENTS
 import {
@@ -43,17 +36,21 @@ type navigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const SignupScreen = () => {
   //HOOKS
-  const [modalVisible, setModalVisible] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [modalHeader, setModalHeader] = React.useState('');
-  const [modalMessage, setModalMessage] = React.useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [modalHeader, setModalHeader] = useState('');
+  const [modalMessage, setModalMessage] = useState('');
+  const fullNameRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+  const confirmPasswordRef = useRef(null);
 
   //YUP VALIDATION SCHEMA
   const SignupSchema = Yup.object().shape({
     fullName: Yup.string().required('Full name is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),
     password: Yup.string()
-      .min(8, 'Minimum 6 characters')
+      .min(6, 'Minimum 6 characters')
       .required('Password is required'),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password')], 'Passwords must match')
@@ -115,129 +112,140 @@ const SignupScreen = () => {
     <>
       <SafeAreaView
         style={styles.container}
-        edges={{ top: 'off', bottom: 'additive' }}
+        edges={{ top: 'additive', bottom: 'additive' }}
       >
-        <KeyboardAvoidingView
-          style={{ flex: 1, backgroundColor: '#0F172A' }}
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        <KeyboardAwareScrollView
+          style={{ backgroundColor: '#0F172A' }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            padding: responsiveWidth(5),
+            paddingTop: responsiveHeight(6),
+            paddingBottom: responsiveHeight(2.5),
+          }}
+          keyboardShouldPersistTaps="handled"
+          enableOnAndroid={true}
+          extraScrollHeight={20}
+          showsVerticalScrollIndicator={false}
         >
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {/*LOGO*/}
-            <Logo name={'link'} size={40} />
-            {/*WELCOME TEXT */}
-            <Text style={styles.welcomeText}>Social Connect</Text>
-            {/*SUBTEXT */}
-            <Text style={styles.subText}>
-              Create an account to join the network.
-            </Text>
-            {/*SIGNUP FORM*/}
+          {/*LOGO*/}
+          <Logo name={'link'} size={40} />
+          {/*WELCOME TEXT */}
+          <Text style={styles.welcomeText}>Social Connect</Text>
+          {/*SUBTEXT */}
+          <Text style={styles.subText}>
+            Create an account to join the network.
+          </Text>
+          {/*SIGNUP FORM*/}
 
-            {/*INPUTS*/}
-            <Formik
-              initialValues={{
-                fullName: '',
-                email: '',
-                password: '',
-                confirmPassword: '',
-              }}
-              validationSchema={SignupSchema}
-              onSubmit={(values) => {
-                signUp(values.fullName, values.email, values.password);
-                setLoading(true);
-                setModalVisible(true);
-              }}
-            >
-              {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                values,
-                errors,
-                touched,
-              }) => (
-                <>
-                  <View style={styles.inputContainer}>
-                    <Text style={styles.subText}>Full Name</Text>
-                    <InputField
-                      value={values.fullName}
-                      onChangeValue={handleChange('fullName')}
-                      onBlur={handleBlur('fullName')}
-                      keyboardType={'default'}
-                      placeholder={'John Doe'}
-                      iconName={'user'}
-                    />
-                    {touched.fullName && errors.fullName && (
-                      <Text style={{ color: 'red' }}>{errors.fullName}</Text>
-                    )}
-                  </View>
-                  <View style={styles.inputContainer}>
-                    <Text style={styles.subText}>Email Address</Text>
-                    <InputField
-                      value={values.email}
-                      onChangeValue={handleChange('email')}
-                      onBlur={handleBlur('email')}
-                      keyboardType={'email-address'}
-                      placeholder={'you@example.com'}
-                      iconName={'mail'}
-                    />
-                    {touched.email && errors.email && (
-                      <Text style={{ color: 'red' }}>{errors.email}</Text>
-                    )}
-                  </View>
-                  <View style={styles.inputContainer}>
-                    <Text style={styles.subText}>Password</Text>
-                    <PasswordField
-                      value={values.password}
-                      onChangeValue={handleChange('password')}
-                      onBlur={handleBlur('password')}
-                      keyboardType={'default'}
-                      placeholder={'••••••••'}
-                    />
-                    {touched.password && errors.password && (
-                      <Text style={{ color: 'red' }}>{errors.password}</Text>
-                    )}
-                  </View>
-                  <View style={styles.inputContainer}>
-                    <Text style={styles.subText}>Confirm Password</Text>
-                    <PasswordField
-                      value={values.confirmPassword}
-                      onChangeValue={handleChange('confirmPassword')}
-                      onBlur={handleBlur('confirmPassword')}
-                      keyboardType={'default'}
-                      placeholder={'••••••••'}
-                    />
-                    {touched.confirmPassword && errors.confirmPassword && (
-                      <Text style={{ color: 'red' }}>
-                        {errors.confirmPassword}
-                      </Text>
-                    )}
-                  </View>
-                  {/*BUTTON*/}
-                  <Button
-                    text={'Create Account'}
-                    iconName={'arrow-right'}
-                    onPress={handleSubmit}
+          {/*INPUTS*/}
+          <Formik
+            initialValues={{
+              fullName: '',
+              email: '',
+              password: '',
+              confirmPassword: '',
+            }}
+            validationSchema={SignupSchema}
+            onSubmit={(values) => {
+              signUp(values.fullName, values.email, values.password);
+              setLoading(true);
+              setModalVisible(true);
+            }}
+          >
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+            }) => (
+              <>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.subText}>Full Name</Text>
+                  <InputField
+                    ref={fullNameRef}
+                    value={values.fullName}
+                    onChangeValue={handleChange('fullName')}
+                    onBlur={handleBlur('fullName')}
+                    keyboardType={'default'}
+                    placeholder={'John Doe'}
+                    iconName={'user'}
                   />
-                </>
-              )}
-            </Formik>
-            {/*ALREADY HAVE ACCOUNT SIGN IN*/}
-            <View style={styles.textContainer}>
-              <Text style={styles.text}>Already have an account? </Text>
+                  {touched.fullName && errors.fullName && (
+                    <Text style={{ color: 'red' }}>{errors.fullName}</Text>
+                  )}
+                </View>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.subText}>Email Address</Text>
+                  <InputField
+                    ref={emailRef}
+                    value={values.email}
+                    onChangeValue={handleChange('email')}
+                    onBlur={handleBlur('email')}
+                    keyboardType={'email-address'}
+                    placeholder={'you@example.com'}
+                    iconName={'mail'}
+                  />
+                  {touched.email && errors.email && (
+                    <Text style={{ color: 'red' }}>{errors.email}</Text>
+                  )}
+                </View>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.subText}>Password</Text>
+                  <PasswordField
+                    ref={passwordRef}
+                    value={values.password}
+                    onChangeValue={handleChange('password')}
+                    onBlur={handleBlur('password')}
+                    keyboardType={'default'}
+                    placeholder={'••••••••'}
+                  />
+                  {touched.password && errors.password && (
+                    <Text style={{ color: 'red' }}>{errors.password}</Text>
+                  )}
+                </View>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.subText}>Confirm Password</Text>
+                  <PasswordField
+                    ref={confirmPasswordRef}
+                    value={values.confirmPassword}
+                    onChangeValue={handleChange('confirmPassword')}
+                    onBlur={handleBlur('confirmPassword')}
+                    keyboardType={'default'}
+                    placeholder={'••••••••'}
+                  />
+                  {touched.confirmPassword && errors.confirmPassword && (
+                    <Text style={{ color: 'red' }}>
+                      {errors.confirmPassword}
+                    </Text>
+                  )}
+                </View>
+                {/*BUTTON*/}
+                <Button
+                  text={'Create Account'}
+                  iconName={'arrow-right'}
+                  onPress={handleSubmit}
+                />
+              </>
+            )}
+          </Formik>
+          {/*ALREADY HAVE ACCOUNT SIGN IN*/}
+          <View style={styles.textContainer}>
+            <Text style={styles.text}>Already have an account? </Text>
 
-              <TouchableOpacity
-                onPress={() =>
-                  navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'Login' }],
-                  })
-                }
-              >
-                <Text style={[styles.text, { color: '#6366F1' }]}>Log in</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'Login' }],
+                })
+              }
+            >
+              <Text style={[styles.text, { color: '#6366F1' }]}>Log in</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAwareScrollView>
       </SafeAreaView>
       <StatusModal
         modalVisible={modalVisible}
@@ -260,9 +268,6 @@ export default SignupScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: responsiveWidth(5),
-    paddingTop: responsiveHeight(6),
-    paddingBottom: responsiveHeight(2.5),
   },
 
   welcomeText: {

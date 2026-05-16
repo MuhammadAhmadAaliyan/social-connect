@@ -9,9 +9,9 @@ export const fetchCurrentUser = createAsyncThunk(
     const userDoc = await getDoc(doc(db, 'users', userId));
     const data = userDoc.data();
     return {
-      id: data?.id,
+      id: userDoc?.id,
       ...data,
-      createdAt: data?.createdAt.toDate().toISOString() || null,
+      createdAt: data?.createdAt?.toDate?.().toISOString() || null,
     };
   },
 );

@@ -276,20 +276,21 @@ const HomeScreen = () => {
           likeCount={item.likes.length}
           onToggle={toggleLikes}
         />
-        <View style={styles.likeAndCommentButton}>
+        <View>
           <Pressable
             onPress={() =>
               navigation.navigate('Comment', {
                 postId: item.id,
-                postOwnerId: item?.user?.id,
+                postOwnerId: item?.userId,
               })
             }
+            style={styles.likeAndCommentButton}
           >
             <Feather name={'message-circle'} size={22} color={'#ffffff'} />
+            <Text style={styles.counterText}>
+              {formatCount(item.commentsCount ?? 0)}
+            </Text>
           </Pressable>
-          <Text style={styles.counterText}>
-            {formatCount(item.commentsCount)}
-          </Text>
         </View>
       </View>
     </View>
