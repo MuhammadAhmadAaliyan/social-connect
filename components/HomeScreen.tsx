@@ -20,6 +20,7 @@ import {
   fetchPosts,
   toggleLike,
   setPosts,
+  removePost,
 } from '../redux/slices/postsSlice';
 import { RootState, AppDispatch } from '../redux/store';
 import {
@@ -44,6 +45,7 @@ import {
   query,
   collection,
   orderBy,
+  deleteDoc,
 } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 
@@ -51,6 +53,8 @@ import { auth, db } from '../firebase';
 import Loading from '../utils/Loading';
 import StatusModal from '../utils/StatusModal';
 import LikeButton from '../utils/LikeButton';
+import DropdownMenu from '../utils/DropdownMenu';
+import ConfirmModal from '../utils/ConfimModal';
 
 //NOTIFICATION COMPONENT
 import { sendPushNotification } from '../utils/sendPushNotification';
@@ -59,10 +63,17 @@ const HomeScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { posts, error } = useSelector((state: RootState) => state.posts);
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
   const [modalHeader, setModalHeader] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: 0,
+    right: 0,
+  });
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const { currentUser } = useSelector((state: RootState) => state.user);
 
   //SETUP NAVIGATION
@@ -161,7 +172,7 @@ const HomeScreen = () => {
 
   //METHOD FOR HANDLING LIKES/UNLIKES
   const toggleLikes = async (postId: string) => {
-    const userId = auth.currentUser?.uid;
+    const userId = currentUser?.id;
     if (!userId) return;
 
     const postRef = doc(db, 'posts', postId);
@@ -221,46 +232,86 @@ const HomeScreen = () => {
     }
   };
 
+  //METHOD FOR DELETING POST
+  const deletePost = async (postId: any) => {
+    if (!postId) return;
+
+    dispatch(removePost(postId));
+
+    try {
+      await deleteDoc(doc(db, 'posts', postId));
+      console.log('Post deleted Successfully');
+    } catch (err) {
+      console.log('Failed to delete: ', err);
+      //REVERT UI IF DELETING FAILS
+      await dispatch(fetchPosts());
+    }
+  };
+
   //RENDER ITEM FUNCTION
   const renderItem = ({ item }: any) => (
     <View
       style={{
-        padding: 20,
+        padding: responsiveWidth(5),
       }}
     >
       {/*USER PROFILE*/}
-      <View style={styles.userProfileContainer}>
-        {item.user?.userImage ? (
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          //alignItems: 'center',
+        }}
+      >
+        <View style={styles.userProfileContainer}>
+          {item.user?.userImage ? (
+            <Pressable
+              onPress={() =>
+                navigation.navigate('ViewProfile', { userId: item.userId })
+              }
+            >
+              <Image
+                source={{ uri: item.user.userImage }}
+                resizeMode="cover"
+                style={styles.userImage}
+              />
+            </Pressable>
+          ) : (
+            <Pressable
+              style={[styles.userImage, { backgroundColor: '#059669' }]}
+              onPress={() =>
+                navigation.navigate('ViewProfile', { userId: item.userId })
+              }
+            >
+              <Text style={styles.profileInitials}>
+                {getInitials(item.user?.username)}
+              </Text>
+            </Pressable>
+          )}
+          <View style={{ justifyContent: 'flex-start' }}>
+            <Text style={styles.userName}>{item.user?.username}</Text>
+            <Text style={styles.timeStamp}>{getTimeAgo(item.createdAt)}</Text>
+          </View>
+        </View>
+        {currentUser.id === item.userId && (
           <Pressable
-            onPress={() =>
-              navigation.navigate('ViewProfile', { userId: item.userId })
-            }
+            onPress={(event) => {
+              // GET THE POSTION OF THE BUTTON ON THE SCREEN
+              const { pageY, pageX } = event.nativeEvent;
+              setDropdownPosition({
+                top: pageY,
+                right: responsiveWidth(100) - pageX,
+              });
+              setSelectedPost(item);
+              setDropdownVisible(true);
+            }}
           >
-            <Image
-              source={{ uri: item.user.userImage }}
-              resizeMode="cover"
-              style={styles.userImage}
-            />
-          </Pressable>
-        ) : (
-          <Pressable
-            style={[styles.userImage, { backgroundColor: '#059669' }]}
-            onPress={() =>
-              navigation.navigate('ViewProfile', { userId: item.userId })
-            }
-          >
-            <Text style={styles.profileInitials}>
-              {getInitials(item.user?.username)}
-            </Text>
+            <Feather name={'more-vertical'} size={24} color={'#ffffff'} />
           </Pressable>
         )}
-        <View style={{ justifyContent: 'flex-start' }}>
-          <Text style={styles.userName}>{item.user?.username}</Text>
-          <Text style={styles.timeStamp}>{getTimeAgo(item.createdAt)}</Text>
-        </View>
       </View>
       {/*POST TEXT*/}
-      <View style={{ marginTop: 18 }}>
+      <View style={{ marginTop: responsiveHeight(2.5) }}>
         <Text style={styles.postText}>{item.postText}</Text>
       </View>
       {/*POST IMAGES*/}
@@ -359,6 +410,7 @@ const HomeScreen = () => {
                 colors={['#6366F1']}
               />
             }
+            showsVerticalScrollIndicator={false}
           />
         )}
       </SafeAreaView>
@@ -368,6 +420,36 @@ const HomeScreen = () => {
         modalMessage={modalMessage}
         loading={false}
         onPressButton={() => setModalVisible(false)}
+      />
+      {/*DROP DOWN MENU*/}
+      <DropdownMenu
+        visible={dropdownVisible}
+        onClose={() => setDropdownVisible(false)}
+        top={dropdownPosition.top}
+        right={dropdownPosition.right}
+        items={[
+          {
+            label: 'Edit Post',
+            onPress: () =>
+              navigation.navigate('EditPost', { post: selectedPost }),
+          },
+          {
+            label: 'Delete Post',
+            onPress: () => setConfirmModalVisible(true),
+          },
+        ]}
+      />
+      {/*CONFIRM DELETION*/}
+      <ConfirmModal
+        visible={confirmModalVisible}
+        title="Confrim Deletion"
+        message="Are you sure you want to delete this post?"
+        onCancel={() => setConfirmModalVisible(false)}
+        onConfirm={() => {
+          deletePost(selectedPost?.id);
+          setConfirmModalVisible(false);
+        }}
+        buttonText="DELETE"
       />
     </>
   );

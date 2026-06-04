@@ -81,6 +81,8 @@ const SignupScreen = () => {
           email: user.email,
           bio: '',
           userImage: '',
+          followers: [],
+          followings: [],
         }),
       ]);
 
@@ -224,7 +226,7 @@ const SignupScreen = () => {
                 {/*BUTTON*/}
                 <Button
                   text={'Create Account'}
-                  iconName={'arrow-right'}
+                  iconName2={'arrow-right'}
                   onPress={handleSubmit}
                 />
               </>

@@ -8,18 +8,22 @@ import {
 
 type InputFieldProps = {
   text: string;
-  iconName?: any;
+  iconName1?: any;
+  iconName2?: any;
   onPress: () => void;
   disabled?: boolean;
   style?: any;
+  size?: number;
 };
 
 export default function Button({
   text,
-  iconName,
+  iconName1,
+  iconName2,
   onPress,
   disabled,
   style,
+  size = 30,
 }: InputFieldProps) {
   return (
     <TouchableOpacity
@@ -27,10 +31,11 @@ export default function Button({
       onPress={onPress}
       disabled={disabled}
     >
+      {iconName1 && <Feather name={iconName1} size={size} color={'#ffffff'} />}
       <Text style={[styles.buttonText, disabled && { color: '#64748B' }]}>
         {text}
       </Text>
-      <Feather name={iconName} size={30} color={'#ffffff'} />
+      {iconName2 && <Feather name={iconName2} size={size} color={'#ffffff'} />}
     </TouchableOpacity>
   );
 }

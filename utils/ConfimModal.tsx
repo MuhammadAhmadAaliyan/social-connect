@@ -9,6 +9,7 @@ interface ConfirmModalProps {
   visible: boolean;
   title: string;
   message: string;
+  buttonText?: string;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -17,6 +18,7 @@ const ConfirmModal = ({
   visible,
   title,
   message,
+  buttonText = 'OK',
   onConfirm,
   onCancel,
 }: ConfirmModalProps) => {
@@ -41,7 +43,9 @@ const ConfirmModal = ({
               <Text style={[styles.buttonText, styles.cancelText]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={onConfirm}>
-              <Text style={[styles.buttonText, styles.confirmText]}>OK</Text>
+              <Text style={[styles.buttonText, styles.confirmText]}>
+                {buttonText}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

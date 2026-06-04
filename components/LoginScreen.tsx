@@ -66,17 +66,19 @@ const LoginScreen = () => {
 
       const { user } = userCredentials;
 
-      if (!user.emailVerified) {
+      await user.reload();
+      const refreshedUser = auth.currentUser;
+
+      if (!refreshedUser?.emailVerified) {
         setModalHeader('Verify Your Email');
         setModalMessage(
           'A verification link has been sent to your email. Please check your inbox and click the link to activate your account.',
         );
         setLoading(false);
-        console.log(user.emailVerified);
         return;
       }
 
-      await dispatch(fetchCurrentUser(user.uid));
+      await dispatch(fetchCurrentUser(refreshedUser.uid));
 
       setLoading(false);
     } catch (err: any) {
@@ -179,7 +181,7 @@ const LoginScreen = () => {
                 {/*BUTTON*/}
                 <Button
                   text={'Log in'}
-                  iconName={'arrow-right'}
+                  iconName2={'arrow-right'}
                   onPress={handleSubmit}
                 />
               </>

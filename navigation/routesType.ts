@@ -9,6 +9,8 @@ export type RootStackParamList = {
   CreatePost: undefined;
   ViewProfile: { userId: string } | undefined;
   Comment: { postId: string; postOwnerId: string } | undefined;
+  Message: { username: string; userImage: string; userId: string };
+  EditPost: { post: any };
 };
 
 export type TabParamList = {

@@ -16,10 +16,12 @@ import SignupScreen from './components/SignupScreen';
 import LoginScreen from './components/LoginScreen';
 import ForgotPasswordScreen from './components/ForgotPasswordScreen';
 import TabNavigator from './navigation/TabNavigator';
-import EditProfileScreen from './components/ProfileEditScreen';
+import EditProfileScreen from './components/EditProfileScreen';
 import CreatePostScreen from './components/CreatePostScreen';
 import ViewProfileScreen from './components/ViewProfileScreen';
 import CommentScreen from './components/CommentScreen';
+import MessageScreen from './components/MessageScreen';
+import EditPostScreen from './components/EditPostScreen';
 
 //OTHER COMPONENTS
 import Loading from './utils/Loading';
@@ -63,7 +65,7 @@ const AppNavigator = () => (
     screenOptions={{
       headerShown: false,
       contentStyle: { flex: 1, backgroundColor: '#0F172A' },
-      animation: 'fade',
+      animation: 'flip',
       gestureEnabled: true,
       gestureDirection: 'horizontal',
     }}
@@ -72,7 +74,17 @@ const AppNavigator = () => (
     <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     <Stack.Screen name="CreatePost" component={CreatePostScreen} />
     <Stack.Screen name="ViewProfile" component={ViewProfileScreen} />
-    <Stack.Screen name="Comment" component={CommentScreen} />
+    <Stack.Screen
+      name="Comment"
+      component={CommentScreen}
+      options={{ animation: 'slide_from_bottom' }}
+    />
+    <Stack.Screen
+      name="Message"
+      component={MessageScreen}
+      options={{ animation: 'slide_from_right' }}
+    />
+    <Stack.Screen name="EditPost" component={EditPostScreen} />
   </Stack.Navigator>
 );
 

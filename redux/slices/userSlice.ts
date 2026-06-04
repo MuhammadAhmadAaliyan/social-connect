@@ -31,6 +31,16 @@ const userSlice = createSlice({
     clearCurrentUser: (state) => {
       state.currentUser = null;
     },
+    toggleFollow: (state, action) => {
+      const { userId } = action.payload;
+      if (!state.currentUser) return;
+
+      const isFollowing = state.currentUser.followings.includes(userId);
+
+      state.currentUser.followings = isFollowing
+        ? state.currentUser.followings.filter((id: string) => id !== userId)
+        : [...(state.currentUser.followings || []), userId];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -47,5 +57,6 @@ const userSlice = createSlice({
   },
 });
 
-export const { updateCurrentUser, clearCurrentUser } = userSlice.actions;
+export const { updateCurrentUser, clearCurrentUser, toggleFollow } =
+  userSlice.actions;
 export default userSlice.reducer;

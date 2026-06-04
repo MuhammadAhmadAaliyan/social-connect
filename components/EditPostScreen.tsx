@@ -27,7 +27,7 @@ import {
 
 //AUTH COMPONENTS
 import { db } from '../firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { updateDoc, serverTimestamp, doc } from 'firebase/firestore';
 
 //OTHER COMPONENTS
 import StatusModal from '../utils/StatusModal';
@@ -37,17 +37,25 @@ import { RootStackParamList } from '../navigation/routesType';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-const CreatePostScreen = () => {
+const EditPostScreen = ({ route }: any) => {
   //HOOKS
-  const [postText, setPostText] = useState('');
-  const [images, setImages] = useState<any>([]);
+  const selectedPost = route.params?.post;
+  const [postText, setPostText] = useState(selectedPost?.postText);
+  const [images, setImages] = useState<any>(selectedPost?.postImages);
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [modalHeader, setModalHeader] = useState('');
   const [modalMessage, setModalMessage] = useState('');
-  const MAX_CHARS = 150;
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
+
+  const MAX_CHARS = 150;
+  const isPostTextChanged = postText.trim() !== selectedPost?.postText;
+  const isImagesChanged =
+    JSON.stringify(images) !== JSON.stringify(selectedPost?.postImages);
+
+  const isButtonEnabled =
+    (isPostTextChanged || isImagesChanged) && postText.trim();
 
   //SETUP NAVIGATION
   const navigation = useNavigation<NavigationProp>();
@@ -86,7 +94,7 @@ const CreatePostScreen = () => {
   // //METHOD FOR PUBLIC URL OF IMAGES
   const uploadImages = async (uris: string[]): Promise<string[]> => {
     try {
-      // ✅ upload all images concurrently
+      //UPLOAD IMAGES CONCURRENTLY
       const uploadPromises = uris.map(async (uri) => {
         const data = new FormData();
 
@@ -110,7 +118,7 @@ const CreatePostScreen = () => {
         return result.secure_url;
       });
 
-      const urls = await Promise.all(uploadPromises); // ✅ wait for all uploads
+      const urls = await Promise.all(uploadPromises);
       return urls;
     } catch (err) {
       console.log('Image upload error:', err);
@@ -118,7 +126,7 @@ const CreatePostScreen = () => {
     }
   };
   //METHOD FOR HANDLING CREATING POST
-  const createPost = async () => {
+  const updatePost = async () => {
     try {
       const userId = currentUser?.id;
 
@@ -137,18 +145,16 @@ const CreatePostScreen = () => {
         imageUrls = [];
       }
 
-      const docRef = await addDoc(collection(db, 'posts'), {
+      await updateDoc(doc(db, 'posts', selectedPost?.id), {
         userId: userId,
         postText: postText,
         postImages: imageUrls,
         createdAt: serverTimestamp(),
-        likes: [],
-        commentsCount: 0,
       });
 
       dispatch(
         addPost({
-          id: docRef.id,
+          id: selectedPost?.id,
           userId: userId,
           postText: postText,
           postImages: imageUrls,
@@ -160,12 +166,12 @@ const CreatePostScreen = () => {
       );
 
       setModalHeader('Success');
-      setModalMessage('Post created successfully');
+      setModalMessage('Post updated successfully');
       setLoading(false);
     } catch (err) {
       console.log(err);
       setModalHeader('Error');
-      setModalMessage('Failed to create post. Try again later.');
+      setModalMessage('Failed to update post. Try again later.');
       setLoading(false);
     }
   };
@@ -199,27 +205,27 @@ const CreatePostScreen = () => {
               onPress={() => navigation.goBack()}
             />
           </Pressable>
-          <Text style={styles.headerText}>Create Post</Text>
+          <Text style={styles.headerText}>Edit Post</Text>
           <Pressable
             style={[
               styles.postButton,
-              !postText.trim() && { backgroundColor: '#334155' },
+              !isButtonEnabled && { backgroundColor: '#334155' },
             ]}
-            disabled={!postText.trim()}
+            disabled={!isButtonEnabled}
             onPress={() => {
-              if (!postText.trim()) return;
+              if (!isButtonEnabled) return;
               setLoading(true);
               setModalVisible(true);
-              createPost();
+              updatePost();
             }}
           >
             <Text
               style={[
                 styles.postButtonText,
-                !postText.trim() && { color: '#64748B' },
+                !isButtonEnabled && { color: '#64748B' },
               ]}
             >
-              Post
+              Update
             </Text>
           </Pressable>
         </View>
@@ -323,7 +329,7 @@ const CreatePostScreen = () => {
   );
 };
 
-export default CreatePostScreen;
+export default EditPostScreen;
 
 const styles = StyleSheet.create({
   header: {
