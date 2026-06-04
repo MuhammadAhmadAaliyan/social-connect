@@ -80,7 +80,7 @@ const MessageScreen = ({ route }: any) => {
   const [lastDoc, setLastDoc] = useState<any>();
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 20;
 
   const userId = route.params?.userId;
   const userImage = route.params?.userImage;
