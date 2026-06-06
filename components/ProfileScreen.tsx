@@ -7,7 +7,7 @@ import {
   Pressable,
   Image,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -94,12 +94,11 @@ const ProfileScreen = () => {
       <View style={styles.header}>
         <Text style={styles.headerText}>Profile</Text>
         <Pressable
-          style={styles.editButton}
           onPress={() => {
             navigation.navigate('EditProfile');
           }}
         >
-          <Feather name="edit" size={30} color={'#ffffff'} />
+          <MaterialIcons name="edit" size={30} color={'#ffffff'} />
         </Pressable>
       </View>
       {/*SEPERATOR LINE*/}
@@ -198,16 +197,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#ffffff',
     textAlignVertical: 'center',
-  },
-
-  editButton: {
-    backgroundColor: '#6366F1',
-    borderWidth: responsiveWidth(0.1),
-    width: responsiveWidth(13),
-    height: responsiveWidth(13),
-    borderRadius: responsiveWidth(4),
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 
   seperatorLine: {
