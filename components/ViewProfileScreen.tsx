@@ -10,7 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Swiper from 'react-native-swiper';
+import PagerView from 'react-native-pager-view';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -63,6 +63,7 @@ const ViewProfileScreen = ({ route }: any) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalHeader, setModalHeader] = useState('');
   const [modalMessage, setModalMessage] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [userPosts, setUserPosts] = useState<any>();
   const dispatch = useDispatch<AppDispatch>();
@@ -75,6 +76,10 @@ const ViewProfileScreen = ({ route }: any) => {
   const [selectedPost, setSelectedPost] = useState<any>(null);
 
   const userId = route.params?.userId;
+
+  const isFollowing = userData?.followers?.includes(currentUser?.id);
+  const isFollowBack = userData?.followings?.includes(currentUser?.id);
+  const isOwnProfile = userId === currentUser?.id;
 
   //FETCH USER PROFILE DATA FROM FIRESTORE
   useEffect(() => {
@@ -175,10 +180,8 @@ const ViewProfileScreen = ({ route }: any) => {
   const toggleFollowUnfollow = async () => {
     const currentUserId = currentUser?.id;
     if (!currentUserId) return;
-    const isFollowing = userData?.followers?.includes(currentUserId);
 
     dispatch(toggleFollow({ userId }));
-
     setUserData((prev: any) => ({
       ...prev,
       followers: isFollowing
@@ -195,6 +198,15 @@ const ViewProfileScreen = ({ route }: any) => {
       } else {
         await updateDoc(userDoc, { followers: arrayUnion(currentUserId) });
         await updateDoc(currentUserDoc, { followings: arrayUnion(userId) });
+      }
+
+      // Push notification
+      if (userId !== currentUser.id && !isFollowing) {
+        await sendPushNotification(
+          userId,
+          'New Follower',
+          `${currentUser.username} starts following you`,
+        );
       }
     } catch (err) {
       console.log('Error while toggle Followers/Followings: ', err);
@@ -326,7 +338,7 @@ const ViewProfileScreen = ({ route }: any) => {
           </View>
           {/*PROFILE ACTIONS*/}
           {userId !== currentUser.id ? (
-            userData.followers.includes(currentUser.id) ? (
+            isFollowing ? (
               <View style={{ paddingTop: responsiveHeight(3.5) }}>
                 <View
                   style={{
@@ -359,7 +371,7 @@ const ViewProfileScreen = ({ route }: any) => {
                       backgroundColor: '#1e293b',
                       borderWidth: responsiveWidth(0.1),
                       borderColor: '#7C99AE',
-                      width: responsiveWidth(28),
+                      width: responsiveWidth(50),
                     }}
                   />
                 </View>
@@ -368,7 +380,7 @@ const ViewProfileScreen = ({ route }: any) => {
               <View style={{ paddingTop: responsiveHeight(3.5) }}>
                 <Button
                   iconName1={'user-plus'}
-                  text={'Follow'}
+                  text={isFollowBack ? 'Follow Back' : 'Follow'}
                   size={20}
                   onPress={() => toggleFollowUnfollow()}
                 />
@@ -509,9 +521,13 @@ const ViewProfileScreen = ({ route }: any) => {
         {/*POST IMAGES*/}
         {Array.isArray(item.postImages) && item.postImages.length > 0 ? (
           <View style={styles.sliderContainer}>
-            <Swiper dotColor="#fff" activeDotColor="#6366F1" loop={false}>
-              {item.postImages.map((uri: any, key: any) => (
-                <View style={styles.postImageContainer} key={key}>
+            <PagerView
+              style={{ height: responsiveHeight(40) }}
+              initialPage={activeIndex}
+              onPageSelected={(e) => setActiveIndex(e.nativeEvent.position)}
+            >
+              {item.postImages.map((uri: any, index: number) => (
+                <View style={styles.postImageContainer} key={index}>
                   <Image
                     source={{ uri }}
                     style={styles.postImage}
@@ -519,7 +535,19 @@ const ViewProfileScreen = ({ route }: any) => {
                   />
                 </View>
               ))}
-            </Swiper>
+            </PagerView>
+
+            {/* DOT INDICATORS */}
+            {item.postImages.length > 1 && (
+              <View style={styles.dotsContainer}>
+                {item.postImages.map((_: any, i: number) => (
+                  <View
+                    key={i}
+                    style={[styles.dot, i === activeIndex && styles.activeDot]}
+                  />
+                ))}
+              </View>
+            )}
           </View>
         ) : null}
         {/*LIKES/UNLIKES & COMMENTS AREA*/}
@@ -552,10 +580,8 @@ const ViewProfileScreen = ({ route }: any) => {
   };
 
   //CHECK IF CURRENT USER FOLLOWS THE USER OR NOT
-  const isFollowing = userData?.followers?.includes(currentUser?.id);
-  const isOwnProfile = userId === currentUser?.id;
-
   const shouldShowPosts = isFollowing || isOwnProfile;
+
   return (
     <>
       {/*HEADER*/}
@@ -588,41 +614,19 @@ const ViewProfileScreen = ({ route }: any) => {
             )}
             renderItem={renderItem}
             ListEmptyComponent={() => (
-              <View
-                style={{ alignItems: 'center', padding: responsiveWidth(10) }}
-              >
+              <View style={styles.emptyListComponentContainer}>
                 {shouldShowPosts ? (
                   <>
                     <Feather name={'file-text'} size={40} color={'#475569'} />
-                    <Text
-                      style={{
-                        color: '#475569',
-                        marginTop: responsiveHeight(1),
-                      }}
-                    >
-                      No posts yet
-                    </Text>
+                    <Text style={styles.emptyContainerText1}>No posts yet</Text>
                   </>
                 ) : (
                   <>
                     <Feather name={'lock'} size={40} color={'#475569'} />
-                    <Text
-                      style={{
-                        color: '#ffffff',
-                        fontWeight: 'bold',
-                        fontSize: responsiveFontSize(2),
-                        marginTop: responsiveHeight(1),
-                      }}
-                    >
+                    <Text style={styles.emptyContainerText2}>
                       This account is private
                     </Text>
-                    <Text
-                      style={{
-                        color: '#475569',
-                        fontSize: responsiveFontSize(1.6),
-                        marginTop: responsiveHeight(0.5),
-                      }}
-                    >
+                    <Text style={styles.emptyContainerText3}>
                       Follow to see their posts
                     </Text>
                   </>
@@ -821,7 +825,6 @@ const styles = StyleSheet.create({
   },
 
   sliderContainer: {
-    height: responsiveHeight(40),
     marginTop: responsiveHeight(2.5),
   },
 
@@ -854,5 +857,43 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
     fontSize: responsiveFontSize(2),
     color: '#7C99AE',
+  },
+  emptyListComponentContainer: {
+    alignItems: 'center',
+    padding: responsiveWidth(10),
+  },
+  emptyContainerText1: {
+    color: '#475569',
+    marginTop: responsiveHeight(1),
+  },
+  emptyContainerText2: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: responsiveFontSize(2),
+    marginTop: responsiveHeight(1),
+  },
+  emptyContainerText3: {
+    color: '#475569',
+    fontSize: responsiveFontSize(1.6),
+    marginTop: responsiveHeight(0.5),
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: responsiveHeight(1),
+    gap: responsiveWidth(1.5),
+  },
+  dot: {
+    width: responsiveWidth(2),
+    height: responsiveWidth(2),
+    borderRadius: responsiveWidth(1),
+    backgroundColor: '#ffffff',
+    opacity: 0.4,
+  },
+  activeDot: {
+    opacity: 1,
+    backgroundColor: '#6366F1',
+    width: responsiveWidth(3),
   },
 });

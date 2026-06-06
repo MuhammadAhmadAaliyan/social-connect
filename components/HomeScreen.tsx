@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Entypo, AntDesign, Feather } from '@expo/vector-icons';
-import Swiper from 'react-native-swiper';
+import PagerView from 'react-native-pager-view';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -68,6 +68,7 @@ const HomeScreen = () => {
   const [modalMessage, setModalMessage] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({
     top: 0,
@@ -317,9 +318,13 @@ const HomeScreen = () => {
       {/*POST IMAGES*/}
       {Array.isArray(item.postImages) && item.postImages.length > 0 ? (
         <View style={styles.sliderContainer}>
-          <Swiper dotColor="#fff" activeDotColor="#6366F1" loop={false}>
-            {item.postImages.map((uri: any, key: any) => (
-              <View style={styles.postImageContainer} key={key}>
+          <PagerView
+            style={{ height: responsiveHeight(40) }}
+            initialPage={activeIndex}
+            onPageSelected={(e) => setActiveIndex(e.nativeEvent.position)}
+          >
+            {item.postImages.map((uri: any, index: number) => (
+              <View style={styles.postImageContainer} key={index}>
                 <Image
                   source={{ uri }}
                   style={styles.postImage}
@@ -327,7 +332,19 @@ const HomeScreen = () => {
                 />
               </View>
             ))}
-          </Swiper>
+          </PagerView>
+
+          {/* DOT INDICATORS */}
+          {item.postImages.length > 1 && (
+            <View style={styles.dotsContainer}>
+              {item.postImages.map((_: any, i: number) => (
+                <View
+                  key={i}
+                  style={[styles.dot, i === activeIndex && styles.activeDot]}
+                />
+              ))}
+            </View>
+          )}
         </View>
       ) : null}
       {/*LIKES/UNLIKES & COMMENTS AREA*/}
@@ -372,7 +389,10 @@ const HomeScreen = () => {
 
   return (
     <>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView
+        style={{ flex: 1 }}
+        edges={{ top: 'additive', bottom: 'off' }}
+      >
         {/*HEADER*/}
         <View style={styles.header}>
           <View style={styles.logoAndText}>
@@ -535,7 +555,6 @@ const styles = StyleSheet.create({
   },
 
   sliderContainer: {
-    height: responsiveHeight(40),
     marginTop: responsiveHeight(2.5),
   },
 
@@ -568,5 +587,24 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
     fontSize: responsiveFontSize(2),
     color: '#7C99AE',
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: responsiveHeight(1),
+    gap: responsiveWidth(1.5),
+  },
+  dot: {
+    width: responsiveWidth(2),
+    height: responsiveWidth(2),
+    borderRadius: responsiveWidth(1),
+    backgroundColor: '#ffffff',
+    opacity: 0.4,
+  },
+  activeDot: {
+    opacity: 1,
+    backgroundColor: '#6366F1',
+    width: responsiveWidth(3),
   },
 });

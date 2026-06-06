@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AntDesign } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import Swiper from 'react-native-swiper';
+import PagerView from 'react-native-pager-view';
 import * as ImagePicker from 'expo-image-picker';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
@@ -46,6 +46,7 @@ const EditPostScreen = ({ route }: any) => {
   const [loading, setLoading] = useState(false);
   const [modalHeader, setModalHeader] = useState('');
   const [modalMessage, setModalMessage] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
 
@@ -281,31 +282,78 @@ const EditPostScreen = ({ route }: any) => {
           >
             <Text style={styles.subText}>Images (Optional):</Text>
             {images.length > 0 && (
-              <Pressable>
-                <MaterialIcons
-                  name={'delete-outline'}
-                  size={25}
-                  color={'#6366F1'}
-                  onPress={() => {
-                    setImages([]);
+              <Pressable onPress={() => setImages(false)}>
+                <Text
+                  style={{
+                    fontFamily: 'Inter',
+                    fontWeight: '500',
+                    color: '#6366F1',
                   }}
-                />
+                >
+                  Clear All
+                </Text>
               </Pressable>
             )}
           </View>
           {Array.isArray(images) && images.length > 0 ? (
             <View style={styles.sliderContainer}>
-              <Swiper dotColor="#fff" activeDotColor="#6366F1" loop={false}>
-                {images.map((uri: any, key: any) => (
-                  <View style={styles.postImageContainer} key={key}>
+              <PagerView
+                style={{ height: responsiveHeight(35) }}
+                initialPage={activeIndex}
+                onPageSelected={(e) => setActiveIndex(e.nativeEvent.position)}
+              >
+                {images.map((uri: any, index: number) => (
+                  <View style={styles.postImageContainer} key={index}>
                     <Image
                       source={{ uri }}
                       style={styles.postImage}
                       resizeMode="cover"
                     />
+                    <Pressable
+                      style={styles.deleteImageButton}
+                      onPress={() => {
+                        const newIndex =
+                          index === images.length - 1 ? index - 1 : index;
+                        setActiveIndex(newIndex < 0 ? 0 : newIndex);
+                        setImages((prev: any) =>
+                          prev.filter((_: any, i: number) => i !== index),
+                        );
+                      }}
+                    >
+                      <MaterialIcons
+                        name="delete-outline"
+                        size={20}
+                        color="#ffffff"
+                      />
+                    </Pressable>
                   </View>
                 ))}
-              </Swiper>
+              </PagerView>
+
+              {/* DOT INDICATORS */}
+              {images.length > 1 && (
+                <View style={styles.dotsContainer}>
+                  {images.map((_: any, i: number) => (
+                    <View
+                      key={i}
+                      style={[
+                        styles.dot,
+                        i === activeIndex && styles.activeDot,
+                      ]}
+                    />
+                  ))}
+                </View>
+              )}
+
+              {/* ADD MORE BUTTON */}
+              {images.length < 5 && (
+                <Pressable style={styles.addMoreButton} onPress={pickImage}>
+                  <Ionicons name="add-circle" size={20} color="#6366F1" />
+                  <Text style={styles.addMoreText}>
+                    Add more ({images.length}/5)
+                  </Text>
+                </Pressable>
+              )}
             </View>
           ) : (
             <Pressable
@@ -429,6 +477,15 @@ const styles = StyleSheet.create({
     height: responsiveHeight(35),
     borderRadius: responsiveWidth(10),
   },
+  deleteImageButton: {
+    position: 'absolute',
+    top: responsiveWidth(3),
+    right: responsiveWidth(3),
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: responsiveWidth(5),
+    padding: responsiveWidth(2),
+    zIndex: 10,
+  },
   imagesPlaceholder: {
     borderWidth: 1,
     borderStyle: 'dashed',
@@ -445,5 +502,40 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter',
     fontWeight: 'bold',
     color: '#7C99AE',
+  },
+  addMoreButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: responsiveWidth(2),
+    paddingVertical: responsiveHeight(1),
+    paddingTop: responsiveHeight(3),
+    paddingBottom: responsiveHeight(8),
+  },
+
+  addMoreText: {
+    color: '#6366F1',
+    fontFamily: 'Inter',
+    fontSize: responsiveFontSize(1.8),
+    fontWeight: 'bold',
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: responsiveHeight(1),
+    gap: responsiveWidth(1.5),
+  },
+  dot: {
+    width: responsiveWidth(2),
+    height: responsiveWidth(2),
+    borderRadius: responsiveWidth(1),
+    backgroundColor: '#ffffff',
+    opacity: 0.4,
+  },
+  activeDot: {
+    opacity: 1,
+    backgroundColor: '#6366F1',
+    width: responsiveWidth(3),
   },
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -77,6 +77,8 @@ const MessageScreen = ({ route }: any) => {
     right: 0,
   });
   const flatListRef = useRef<FlatList>(null);
+  const isFirstLoad = useRef(true);
+  const isLoadingMore = useRef(false);
   const [lastDoc, setLastDoc] = useState<any>();
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -85,8 +87,6 @@ const MessageScreen = ({ route }: any) => {
   const userId = route.params?.userId;
   const userImage = route.params?.userImage;
   const username = route.params?.username;
-  const isFirstLoad = useRef(true);
-  const isLoadingMore = useRef(false);
 
   //REAL TIME LISTENER
   useEffect(() => {
@@ -198,10 +198,12 @@ const MessageScreen = ({ route }: any) => {
     return (words[0][0] + words[1][0]).toUpperCase();
   };
 
-  //METHOD FOR RENDER ITEM
-  const renderItem = ({ item }: any) => {
-    const isOwn = item.userId === currentUser?.id;
-
+  //MESSAGE BUBBLE
+  const MessageBubble = memo(function MessageBubble({
+    item,
+    isOwn,
+    getTimeAgo,
+  }: any) {
     return (
       <View
         style={[
@@ -209,29 +211,47 @@ const MessageScreen = ({ route }: any) => {
           isOwn ? styles.messageRowRight : styles.messageRowLeft,
         ]}
       >
-        {/*MESSAGE BUBBLE*/}
         <View
           style={[
             styles.messageBubble,
             isOwn ? styles.ownBubble : styles.otherBubble,
           ]}
         >
-          <Text style={styles.message}>{item.message}</Text>
-          <Text
-            style={[
-              styles.timestamp,
-              {
-                textAlign: 'right',
-                color: isOwn ? 'rgba(255,255,255,0.5)' : '#475569',
-              },
-            ]}
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'flex-end',
+              justifyContent: 'space-between',
+              gap: responsiveWidth(3),
+            }}
           >
-            {getTimeAgo(item.createdAt)}
-          </Text>
+            <Text style={styles.message}>{item.message}</Text>
+            <Text
+              style={[
+                styles.timestamp,
+                {
+                  color: isOwn ? 'rgba(255,255,255,0.5)' : '#475569',
+                },
+              ]}
+            >
+              {getTimeAgo(item.createdAt)}
+            </Text>
+          </View>
         </View>
       </View>
     );
-  };
+  });
+
+  //METHOD FOR RENDER ITEM
+  const renderItem = useCallback(
+    ({ item }: any) => {
+      const isOwn = item.userId === currentUser?.id;
+      return (
+        <MessageBubble item={item} isOwn={isOwn} getTimeAgo={getTimeAgo} />
+      );
+    },
+    [currentUser?.id],
+  );
 
   //METHOD FOR SEND MESSAGE
   const sendMessage = async () => {
@@ -393,11 +413,11 @@ const MessageScreen = ({ route }: any) => {
                 padding: responsiveWidth(5),
                 flexGrow: 1,
               }}
-              // ✅ maintains scroll position when older messages are prepended
+              //MAINTAIN SCROLL POSITION WHEN OLDER MESSAGES ARE PREPENDED
               maintainVisibleContentPosition={{
                 minIndexForVisible: 0,
               }}
-              // ✅ more reliable than onScroll for detecting top
+              //FOR DETECTING TOP
               onScrollBeginDrag={({ nativeEvent }) => {
                 if (
                   nativeEvent.contentOffset.y < 50 &&
@@ -407,7 +427,7 @@ const MessageScreen = ({ route }: any) => {
                   loadMoreMessages();
                 }
               }}
-              // ✅ also trigger when scroll ends near top
+              //ALSO TRIGGER WHEN SCROLL ENDS NEAR TOP
               onMomentumScrollEnd={({ nativeEvent }) => {
                 if (
                   nativeEvent.contentOffset.y < 50 &&
@@ -570,7 +590,7 @@ const styles = StyleSheet.create({
     borderRadius: responsiveWidth(4),
     padding: responsiveWidth(2.5),
     marginHorizontal: responsiveWidth(2),
-    minWidth: responsiveWidth(20),
+    minWidth: responsiveWidth(22),
   },
   ownBubble: {
     backgroundColor: '#6366F1',
@@ -589,7 +609,9 @@ const styles = StyleSheet.create({
 
   timestamp: {
     fontFamily: 'Inter',
-    fontSize: responsiveFontSize(1.6),
+    fontSize: responsiveFontSize(1.4),
+    flexShrink: 0,
+    alignSelf: 'flex-end',
   },
 
   inputContainer: {
