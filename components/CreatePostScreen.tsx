@@ -151,7 +151,7 @@ const CreatePostScreen = () => {
         return result.secure_url;
       });
 
-      const urls = await Promise.all(uploadPromises); // ✅ wait for all uploads
+      const urls = await Promise.all(uploadPromises);
       return urls;
     } catch (err) {
       console.log('Image upload error:', err);

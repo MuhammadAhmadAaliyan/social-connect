@@ -3,12 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   FlatList,
   TouchableOpacity,
   RefreshControl,
   Pressable,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Entypo, AntDesign, Feather } from '@expo/vector-icons';
 import PagerView from 'react-native-pager-view';
@@ -55,6 +55,7 @@ import StatusModal from '../utils/StatusModal';
 import LikeButton from '../utils/LikeButton';
 import DropdownMenu from '../utils/DropdownMenu';
 import ConfirmModal from '../utils/ConfimModal';
+import { optimizeImageUrl } from '../utils/optimizedImageUrl';
 
 //NOTIFICATION COMPONENT
 import { sendPushNotification } from '../utils/sendPushNotification';
@@ -273,7 +274,9 @@ const HomeScreen = () => {
             >
               <Image
                 source={{ uri: item.user.userImage }}
-                resizeMode="cover"
+                contentFit="cover"
+                cachePolicy={'memory-disk'}
+                transition={200}
                 style={styles.userImage}
               />
             </Pressable>
@@ -326,9 +329,11 @@ const HomeScreen = () => {
             {item.postImages.map((uri: any, index: number) => (
               <View style={styles.postImageContainer} key={index}>
                 <Image
-                  source={{ uri }}
+                  source={{ uri: optimizeImageUrl(uri) }}
                   style={styles.postImage}
-                  resizeMode="cover"
+                  contentFit="cover"
+                  cachePolicy={'memory-disk'}
+                  transition={200}
                 />
               </View>
             ))}

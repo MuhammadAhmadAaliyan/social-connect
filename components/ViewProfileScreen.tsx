@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  FlatList,
-  Pressable,
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -52,6 +46,7 @@ import Button from '../utils/Button';
 import ConfirmModal from '../utils/ConfimModal';
 import LikeButton from '../utils/LikeButton';
 import DropdownMenu from '../utils/DropdownMenu';
+import { optimizeImageUrl } from '../utils/optimizedImageUrl';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -303,7 +298,9 @@ const ViewProfileScreen = ({ route }: any) => {
           {userData.userImage ? (
             <Image
               source={{ uri: userData.userImage }}
-              resizeMode={'contain'}
+              contentFit={'contain'}
+              cachePolicy={'memory-disk'}
+              transition={200}
               style={[styles.profileImage, { backgroundColor: 'transparent' }]}
             />
           ) : (
@@ -469,28 +466,21 @@ const ViewProfileScreen = ({ route }: any) => {
         >
           <View style={styles.userProfileContainer}>
             {item.user?.userImage ? (
-              <Pressable
-                onPress={() =>
-                  navigation.navigate('ViewProfile', { userId: item.userId })
-                }
-              >
+              <View>
                 <Image
                   source={{ uri: item.user.userImage }}
-                  resizeMode="cover"
+                  contentFit="cover"
+                  cachePolicy={'memory-disk'}
+                  transition={200}
                   style={styles.userImage}
                 />
-              </Pressable>
+              </View>
             ) : (
-              <Pressable
-                style={[styles.userImage, { backgroundColor: '#059669' }]}
-                onPress={() =>
-                  navigation.navigate('ViewProfile', { userId: item.userId })
-                }
-              >
+              <View style={[styles.userImage, { backgroundColor: '#059669' }]}>
                 <Text style={styles.profileInitials}>
                   {getInitials(item.user?.username)}
                 </Text>
-              </Pressable>
+              </View>
             )}
             <View style={{ justifyContent: 'flex-start' }}>
               <Text style={styles.userName}>{item.user?.username}</Text>
@@ -529,9 +519,11 @@ const ViewProfileScreen = ({ route }: any) => {
               {item.postImages.map((uri: any, index: number) => (
                 <View style={styles.postImageContainer} key={index}>
                   <Image
-                    source={{ uri }}
+                    source={{ uri: optimizeImageUrl(uri) }}
                     style={styles.postImage}
-                    resizeMode="cover"
+                    contentFit="cover"
+                    cachePolicy={'memory-disk'}
+                    transition={200}
                   />
                 </View>
               ))}

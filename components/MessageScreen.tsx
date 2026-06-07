@@ -52,6 +52,9 @@ import {
   updateDoc,
   limit,
   startAfter,
+  arrayUnion,
+  arrayRemove,
+  getDoc,
 } from 'firebase/firestore';
 
 //NOTIFICATION COMPONENT
@@ -79,6 +82,7 @@ const MessageScreen = ({ route }: any) => {
   const flatListRef = useRef<FlatList>(null);
   const isFirstLoad = useRef(true);
   const isLoadingMore = useRef(false);
+  const isSendingMessage = useRef(false);
   const [lastDoc, setLastDoc] = useState<any>();
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -96,7 +100,7 @@ const MessageScreen = ({ route }: any) => {
 
     const q = query(
       collection(db, 'chats', chatId, 'messages'),
-      orderBy('createdAt', 'desc'), // ← desc to get latest first
+      orderBy('createdAt', 'desc'),
       limit(PAGE_SIZE),
     );
 
@@ -108,11 +112,15 @@ const MessageScreen = ({ route }: any) => {
           createdAt:
             doc.data().createdAt?.toDate?.().toISOString() ??
             new Date().toISOString(),
+          deletedFor: doc.data().deletedFor || [],
         }))
-        .reverse(); // ← reverse so oldest is on top
+        .filter((msg) => {
+          return !msg.deletedFor.includes(currentUser.id);
+        })
+        .reverse();
 
       setMessages(msgs);
-      setLastDoc(snapshot.docs[snapshot.docs.length - 1]); // ← save last doc for pagination
+      setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
       setHasMore(snapshot.docs.length === PAGE_SIZE);
       setLoading(false);
     });
@@ -120,23 +128,30 @@ const MessageScreen = ({ route }: any) => {
     return () => unsubscribe();
   }, [currentUser?.id, userId]);
 
+  //FIRST TIME MESSAGES LOADS
   useEffect(() => {
     if (messages.length > 0 && isFirstLoad.current) {
-      flatListRef.current?.scrollToEnd({ animated: false });
-      isFirstLoad.current = false;
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: false });
+        isFirstLoad.current = false;
+      }, 100);
     }
   }, [messages]);
 
+  //SCROLL TO END METHOD
   useEffect(() => {
     const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+      if (!isLoadingMore.current) {
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({ animated: true });
+        }, 150);
+      }
     });
 
     return () => showSubscription.remove();
   }, []);
 
+  //LOADING MORE MESSAGES METHOD
   const loadMoreMessages = async () => {
     if (!hasMore || loadingMore || !lastDoc) return;
 
@@ -159,15 +174,45 @@ const MessageScreen = ({ route }: any) => {
         createdAt:
           doc.data().createdAt?.toDate?.().toISOString() ??
           new Date().toISOString(),
+        deletedFor: doc.data().deletedFor || [],
       }))
       .reverse();
 
+    //PREPEND OLEDER MESSAGES
     setMessages((prev: any) => [...olderMsgs, ...prev]);
     setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
     setHasMore(snapshot.docs.length === PAGE_SIZE);
-    isLoadingMore.current = false;
-    setLoadingMore(false);
+
+    //SCROLL TO WHERE USER WAS AFTER PREPEND
+    setTimeout(() => {
+      flatListRef.current?.scrollToIndex({
+        index: olderMsgs.length,
+        animated: false,
+      });
+      isLoadingMore.current = false;
+      setLoadingMore(false);
+    }, 100);
   };
+
+  //CHECKING THE CURRENT USER IS IN ACTIVE CHAT OR NOT FOR NOTIFICATON
+  useEffect(() => {
+    if (!currentUser?.id || !userId) return;
+
+    const chatId = getChatId(currentUser.id, userId);
+    const chatRef = doc(db, 'chats', chatId);
+
+    //MARK CURRENT USER AS ACTIVE IN THIS CHAT
+    updateDoc(chatRef, {
+      activeChatUsers: arrayUnion(currentUser.id),
+    });
+
+    return () => {
+      //REMOVE WHEN LEAVING SCREEN
+      updateDoc(chatRef, {
+        activeChatUsers: arrayRemove(currentUser.id),
+      });
+    };
+  }, [currentUser?.id, userId]);
 
   //FORMAT TIME METHOD
   const getTimeAgo = (timestamp: any) => {
@@ -264,12 +309,11 @@ const MessageScreen = ({ route }: any) => {
       userId: currentUser.id,
       message: message.trim(),
       createdAt: new Date().toISOString(),
+      deletedFor: [],
     };
 
+    isSendingMessage.current = true;
     setMessages((prev: any) => [...prev, tempMessage]);
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
     setMessage('');
 
     try {
@@ -299,11 +343,19 @@ const MessageScreen = ({ route }: any) => {
 
       // Push notification
       if (userId !== currentUser.id) {
-        await sendPushNotification(
-          userId,
-          'New Message',
-          `${currentUser.username}: ${tempMessage.message}`,
-        );
+        const chatSnap = await getDoc(chatRef);
+        const chatData = chatSnap.data();
+        const activeChatUsers = chatData?.activeChatUsers || [];
+
+        const isRecipientActive = activeChatUsers?.includes(userId);
+
+        if (!isRecipientActive) {
+          await sendPushNotification(
+            userId,
+            'New Message',
+            `${currentUser.username}: ${tempMessage.message}`,
+          );
+        }
       }
     } catch (err) {
       console.log('Error sending message:', err);
@@ -326,16 +378,14 @@ const MessageScreen = ({ route }: any) => {
     try {
       const snapshot = await getDocs(messagesRef);
 
+      // MARK EACH MESSAGE AS DELETED FOR CURRENT USER ONLY
       const batch = writeBatch(db);
       snapshot.docs.forEach((doc) => {
-        batch.delete(doc.ref);
+        batch.update(doc.ref, {
+          deletedFor: arrayUnion(currentUser.id), // ADD DELETED FOR TO TRACK WHO CLEAR CHAT
+        });
       });
       await batch.commit();
-
-      await updateDoc(doc(db, 'chats', chatId), {
-        lastMessage: '',
-        lastMessageAt: serverTimestamp(),
-      });
 
       setModalHeader('Success');
       setModalMessage('Chat cleared successfully.');
@@ -344,6 +394,7 @@ const MessageScreen = ({ route }: any) => {
       setModalVisible(true);
     } catch (err) {
       console.log('Error clearing chat:', err);
+      setStatusModalLoading(false);
     }
   };
 
@@ -413,9 +464,19 @@ const MessageScreen = ({ route }: any) => {
                 padding: responsiveWidth(5),
                 flexGrow: 1,
               }}
-              //MAINTAIN SCROLL POSITION WHEN OLDER MESSAGES ARE PREPENDED
-              maintainVisibleContentPosition={{
-                minIndexForVisible: 0,
+              //ONLY SCROLL TO END WHEN NEW MESSAGE SEND
+              onContentSizeChange={() => {
+                if (isSendingMessage.current) {
+                  flatListRef.current?.scrollToEnd({ animated: true });
+                  isSendingMessage.current = false;
+                }
+              }}
+              //ALSO SCROLL ON LAYOUT CHANGE(KEYBOARD OPEN/CLOSE)
+              onLayout={() => {
+                if (isSendingMessage.current) {
+                  flatListRef.current?.scrollToEnd({ animated: true });
+                  isSendingMessage.current = false;
+                }
               }}
               //FOR DETECTING TOP
               onScrollBeginDrag={({ nativeEvent }) => {
