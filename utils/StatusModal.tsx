@@ -33,7 +33,7 @@ export default function StatusModal({
         <View style={styles.modalContainer}>
           {loading ? (
             <View>
-              <ActivityIndicator size={60} color={'#6366F1'} />
+              <ActivityIndicator size={responsiveWidth(15)} color={'#6366F1'} />
               <Text style={styles.modalText}>Please wait...</Text>
             </View>
           ) : (
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   },
 
   modalText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(2.4),
     color: '#7C99AE',
     marginTop: responsiveHeight(3),
@@ -76,16 +76,14 @@ const styles = StyleSheet.create({
 
   modalHeader: {
     fontSize: responsiveFontSize(3),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
   },
 
   modalButtonText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Bold',
     fontSize: responsiveFontSize(2.4),
     color: '#6366F1',
-    fontWeight: 'bold',
   },
 
   modalButton: {

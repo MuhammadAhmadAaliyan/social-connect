@@ -98,7 +98,11 @@ const ProfileScreen = () => {
             navigation.navigate('EditProfile');
           }}
         >
-          <MaterialIcons name="edit" size={30} color={'#ffffff'} />
+          <MaterialIcons
+            name="edit"
+            size={responsiveWidth(7.5)}
+            color={'#ffffff'}
+          />
         </Pressable>
       </View>
       {/*SEPERATOR LINE*/}
@@ -193,8 +197,7 @@ const styles = StyleSheet.create({
 
   headerText: {
     fontSize: responsiveFontSize(3),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     textAlignVertical: 'center',
   },
@@ -221,23 +224,21 @@ const styles = StyleSheet.create({
   },
 
   nameInitials: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-SemiBold',
     fontSize: responsiveFontSize(5),
-    fontWeight: 'bold',
     color: '#ffffff',
   },
 
   subText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-SemiBold',
     color: '#7C99AE',
     paddingTop: responsiveHeight(1.2),
-    fontWeight: '800',
   },
 
   text: {
     fontSize: responsiveFontSize(2),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#ffffff',
     paddingVertical: responsiveHeight(2.5),
   },

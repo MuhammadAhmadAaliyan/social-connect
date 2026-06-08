@@ -10,6 +10,7 @@ import { auth } from './firebase';
 import { fetchCurrentUser, clearCurrentUser } from './redux/slices/userSlice';
 import { AppDispatch } from './redux/store';
 import * as Notifications from 'expo-notifications';
+import { useFonts } from 'expo-font';
 
 //SCREENS
 import SignupScreen from './components/SignupScreen';
@@ -22,6 +23,7 @@ import ViewProfileScreen from './components/ViewProfileScreen';
 import CommentScreen from './components/CommentScreen';
 import MessageScreen from './components/MessageScreen';
 import EditPostScreen from './components/EditPostScreen';
+import PostDetailScreen from './components/PostDetailScreen';
 
 //OTHER COMPONENTS
 import Loading from './utils/Loading';
@@ -85,6 +87,7 @@ const AppNavigator = () => (
       options={{ animation: 'slide_from_right' }}
     />
     <Stack.Screen name="EditPost" component={EditPostScreen} />
+    <Stack.Screen name="PostDetail" component={PostDetailScreen} />
   </Stack.Navigator>
 );
 
@@ -125,10 +128,10 @@ const Navigation = () => {
       theme={{
         dark: true,
         fonts: {
-          regular: { fontFamily: 'Inter', fontWeight: '400' },
-          medium: { fontFamily: 'Inter', fontWeight: '500' },
-          bold: { fontFamily: 'Inter', fontWeight: '700' },
-          heavy: { fontFamily: 'Inter', fontWeight: '900' },
+          regular: { fontFamily: 'Inter-Regular', fontWeight: '400' },
+          medium: { fontFamily: 'Inter-Medium', fontWeight: '500' },
+          bold: { fontFamily: 'Inter-Bold', fontWeight: '700' },
+          heavy: { fontFamily: 'Inter-ExtraBold', fontWeight: '900' },
         },
         colors: {
           background: '#0F172A',
@@ -147,6 +150,21 @@ const Navigation = () => {
 };
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    'Inter-Regular': require('./assets/fonts/Inter_18pt-Regular.ttf'),
+    'Inter-Medium': require('./assets/fonts/Inter_18pt-Medium.ttf'),
+    'Inter-SemiBold': require('./assets/fonts/Inter_18pt-SemiBold.ttf'),
+    'Inter-Bold': require('./assets/fonts/Inter_18pt-Bold.ttf'),
+    'Inter-ExtraBold': require('./assets/fonts/Inter_18pt-ExtraBold.ttf'),
+  });
+
+  if (!fontsLoaded)
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0F172A' }}>
+        <Loading />
+      </View>
+    );
+
   return (
     <SafeAreaProvider style={{ flex: 1, backgroundColor: '#0F172A' }}>
       <Provider store={store}>

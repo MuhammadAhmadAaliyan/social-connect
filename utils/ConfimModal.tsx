@@ -70,16 +70,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   title: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Bold',
     fontSize: responsiveFontSize(2.4),
-    fontWeight: '700',
     color: '#ffffff',
     paddingHorizontal: responsiveWidth(5),
     paddingTop: responsiveHeight(2.5),
     paddingBottom: responsiveHeight(1.5),
   },
   message: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(2.1),
     color: '#7C99AE',
     paddingHorizontal: responsiveWidth(5),
@@ -96,9 +95,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Medium',
     fontSize: responsiveFontSize(2.2),
-    fontWeight: '600',
   },
   cancelText: {
     color: '#7C99AE',

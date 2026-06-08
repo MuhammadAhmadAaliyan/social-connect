@@ -19,7 +19,6 @@ import {
   responsiveFontSize,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
-
 //AUTH COMPONENTS
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -105,7 +104,7 @@ const LoginScreen = () => {
       >
         <ScrollView showsVerticalScrollIndicator={false}>
           {/*LOGO*/}
-          <Logo name={'link'} size={40} />
+          <Logo name={'link'} size={responsiveWidth(10)} />
           {/*WELCOME TEXT */}
           <Text style={styles.welcomeText}>Welcome Back</Text>
           {/*SUBTEXT */}
@@ -219,14 +218,13 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: responsiveFontSize(3.5),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     paddingTop: responsiveHeight(6),
   },
   subText: {
     fontSize: responsiveFontSize(1.8),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#7C99AE',
     paddingTop: responsiveHeight(1.2),
   },
@@ -242,7 +240,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: responsiveFontSize(1.8),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#7C99AE',
     lineHeight: responsiveHeight(2.5),
   },

@@ -31,6 +31,7 @@ import { updateDoc, serverTimestamp, doc } from 'firebase/firestore';
 
 //OTHER COMPONENTS
 import StatusModal from '../utils/StatusModal';
+import ConfirmModal from '../utils/ConfimModal';
 
 //SCREEN TYPES
 import { RootStackParamList } from '../navigation/routesType';
@@ -47,6 +48,7 @@ const EditPostScreen = ({ route }: any) => {
   const [modalHeader, setModalHeader] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
+  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
 
@@ -132,8 +134,6 @@ const EditPostScreen = ({ route }: any) => {
       const userId = currentUser?.id;
 
       if (!userId) {
-        setModalHeader('Error');
-        setModalMessage('You must be logged in to create a post.');
         setLoading(false);
         return;
       }
@@ -198,12 +198,26 @@ const EditPostScreen = ({ route }: any) => {
       >
         {/*HEADER*/}
         <View style={styles.header}>
-          <Pressable style={styles.closeButton}>
+          <Pressable
+            style={styles.closeButton}
+            onPress={() => {
+              const textChanged =
+                postText.trim() !== selectedPost?.postText?.trim();
+              const imagesChanged =
+                JSON.stringify(images) !==
+                JSON.stringify(selectedPost?.postImages);
+
+              if (textChanged || imagesChanged) {
+                setConfirmModalVisible(true);
+              } else {
+                navigation.goBack();
+              }
+            }}
+          >
             <AntDesign
               name={'close'}
-              size={25}
+              size={responsiveWidth(6.5)}
               color={'#ffffff'}
-              onPress={() => navigation.goBack()}
             />
           </Pressable>
           <Text style={styles.headerText}>Edit Post</Text>
@@ -322,7 +336,7 @@ const EditPostScreen = ({ route }: any) => {
                     >
                       <MaterialIcons
                         name="delete-outline"
-                        size={20}
+                        size={responsiveWidth(5)}
                         color="#ffffff"
                       />
                     </Pressable>
@@ -348,7 +362,11 @@ const EditPostScreen = ({ route }: any) => {
               {/* ADD MORE BUTTON */}
               {images.length < 5 && (
                 <Pressable style={styles.addMoreButton} onPress={pickImage}>
-                  <Ionicons name="add-circle" size={20} color="#6366F1" />
+                  <Ionicons
+                    name="add-circle"
+                    size={responsiveWidth(5)}
+                    color="#6366F1"
+                  />
                   <Text style={styles.addMoreText}>
                     Add more ({images.length}/5)
                   </Text>
@@ -360,7 +378,11 @@ const EditPostScreen = ({ route }: any) => {
               style={styles.imagesPlaceholder}
               onPress={() => pickImage()}
             >
-              <Ionicons name="images" size={60} color={'#7C99AE'} />
+              <Ionicons
+                name="images"
+                size={responsiveWidth(15)}
+                color={'#7C99AE'}
+              />
               <Text style={styles.imagesPlaceholderText}>Add Images</Text>
             </Pressable>
           )}
@@ -372,6 +394,17 @@ const EditPostScreen = ({ route }: any) => {
         modalHeader={modalHeader}
         modalMessage={modalMessage}
         onPressButton={() => navigation.goBack()}
+      />
+      <ConfirmModal
+        visible={confirmModalVisible}
+        title="Discard?"
+        message="You have unsaved changes. If you leave now, your changes will be lost."
+        buttonText="DISCARD"
+        onConfirm={() => {
+          setConfirmModalVisible(false);
+          navigation.goBack();
+        }}
+        onCancel={() => setConfirmModalVisible(false)}
       />
     </>
   );
@@ -389,8 +422,7 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: responsiveFontSize(2.5),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     textAlignVertical: 'center',
   },
@@ -403,9 +435,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   postButtonText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Bold',
     fontSize: responsiveFontSize(2),
-    fontWeight: 'bold',
     color: '#ffffff',
   },
   closeButton: {
@@ -435,20 +466,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   profileInitials: {
-    fontFamily: 'Inter',
-    fontWeight: '800',
+    fontFamily: 'Inter-SemiBold',
     color: '#ffffff',
     fontSize: responsiveFontSize(1.8),
   },
   userName: {
-    fontFamily: 'Inter',
-    fontWeight: '800',
+    fontFamily: 'Inter-SemiBold',
     fontSize: responsiveFontSize(1.8),
     color: '#ffffff',
   },
   input: {
     borderWidth: 0.5,
     borderColor: '#7C99AE',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(1.8),
     backgroundColor: '#1e293b',
     padding: responsiveWidth(3),
@@ -459,9 +489,8 @@ const styles = StyleSheet.create({
   },
   subText: {
     fontSize: responsiveFontSize(1.8),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-SemiBold',
     color: '#7C99AE',
-    fontWeight: '800',
   },
   sliderContainer: {
     height: responsiveHeight(35),
@@ -499,8 +528,7 @@ const styles = StyleSheet.create({
   },
   imagesPlaceholderText: {
     fontSize: responsiveFontSize(2.2),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#7C99AE',
   },
   addMoreButton: {

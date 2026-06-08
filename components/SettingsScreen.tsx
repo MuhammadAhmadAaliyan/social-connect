@@ -19,6 +19,7 @@ import { auth } from '../firebase';
 import ConfirmModal from '../utils/ConfimModal';
 
 const SettingsScreen = () => {
+  //HOOKS
   const dispatch = useDispatch<AppDispatch>();
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -39,9 +40,7 @@ const SettingsScreen = () => {
       >
         {/*HEADER*/}
         <View style={styles.header}>
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.headerText}>Settings</Text>
-          </View>
+          <Text style={styles.headerText}>Settings</Text>
         </View>
         {/*SEPARATOR LINE*/}
         <View style={styles.seperatorLine} />
@@ -53,7 +52,11 @@ const SettingsScreen = () => {
               setModalVisible(true);
             }}
           >
-            <MaterialIcons name={'logout'} size={30} color={'red'} />
+            <MaterialIcons
+              name={'logout'}
+              size={responsiveWidth(7.5)}
+              color={'red'}
+            />
             <Text style={styles.logoutButtonText}>Log Out</Text>
           </TouchableOpacity>
         </View>
@@ -76,25 +79,19 @@ export default SettingsScreen;
 
 const styles = StyleSheet.create({
   header: {
-    padding: responsiveWidth(5),
-    paddingTop: responsiveHeight(6),
-    paddingBottom: responsiveHeight(2),
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: responsiveWidth(5),
+    paddingVertical: responsiveHeight(2),
     alignItems: 'center',
-  },
-  headerText: {
-    fontSize: responsiveFontSize(3),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
-    color: '#ffffff',
-    textAlign: 'center',
   },
 
-  headerTextContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    alignItems: 'center',
+  headerText: {
+    fontSize: responsiveFontSize(3),
+    fontFamily: 'Inter-Bold',
+    color: '#ffffff',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   seperatorLine: {
     borderBottomWidth: responsiveWidth(0.15),
@@ -116,8 +113,7 @@ const styles = StyleSheet.create({
   },
   logoutButtonText: {
     fontSize: responsiveFontSize(2.4),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: 'red',
   },
 });

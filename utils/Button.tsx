@@ -23,7 +23,7 @@ export default function Button({
   onPress,
   disabled,
   style,
-  size = 30,
+  size = responsiveWidth(7.5),
 }: InputFieldProps) {
   return (
     <TouchableOpacity
@@ -43,8 +43,7 @@ export default function Button({
 const styles = StyleSheet.create({
   buttonText: {
     fontSize: responsiveFontSize(2.4),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
   },
 

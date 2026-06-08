@@ -11,10 +11,12 @@ export type RootStackParamList = {
   Comment: { postId: string; postOwnerId: string } | undefined;
   Message: { username: string; userImage: string; userId: string };
   EditPost: { post: any };
+  PostDetail: { postId: any };
 };
 
 export type TabParamList = {
   Home: undefined;
   Profile: undefined;
   Settings: undefined;
+  Search: undefined;
 };

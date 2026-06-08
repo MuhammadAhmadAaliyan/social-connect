@@ -251,7 +251,7 @@ const EditProfileScreen = () => {
                   {profileImage && (
                     <MaterialIcons
                       name={'delete-outline'}
-                      size={25}
+                      size={responsiveWidth(6.5)}
                       color={'#6366F1'}
                       style={{ paddingTop: responsiveHeight(1.2) }}
                       onPress={() => {
@@ -283,7 +283,11 @@ const EditProfileScreen = () => {
                     style={styles.cameraButton}
                     onPress={() => setModalVisible(true)}
                   >
-                    <Feather name="camera" size={20} color={'#ffffff'} />
+                    <Feather
+                      name="camera"
+                      size={responsiveWidth(5)}
+                      color={'#ffffff'}
+                    />
                   </Pressable>
                 </View>
               </View>
@@ -403,7 +407,11 @@ const EditProfileScreen = () => {
                 captureImage();
               }}
             >
-              <Feather name="camera" size={25} color={'#ffffff'} />
+              <Feather
+                name="camera"
+                size={responsiveWidth(6.5)}
+                color={'#ffffff'}
+              />
               <Text style={styles.modalText}>Take a Picture</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -413,7 +421,11 @@ const EditProfileScreen = () => {
                 pickImage();
               }}
             >
-              <Feather name="image" size={25} color={'#ffffff'} />
+              <Feather
+                name="image"
+                size={responsiveWidth(6.5)}
+                color={'#ffffff'}
+              />
               <Text style={styles.modalText}>Choose from gallery</Text>
             </TouchableOpacity>
           </View>
@@ -446,8 +458,7 @@ const styles = StyleSheet.create({
 
   headerText: {
     fontSize: responsiveFontSize(3),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     position: 'absolute',
     left: 0,
@@ -502,23 +513,21 @@ const styles = StyleSheet.create({
   },
 
   nameInitials: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-SemiBold',
     fontSize: responsiveFontSize(5),
-    fontWeight: 'bold',
     color: '#ffffff',
   },
 
   subText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-SemiBold',
     color: '#7C99AE',
     paddingTop: responsiveHeight(1.2),
-    fontWeight: '800',
   },
 
   text: {
     fontSize: responsiveFontSize(2),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#ffffff',
     paddingVertical: responsiveHeight(2.5),
   },
@@ -528,6 +537,7 @@ const styles = StyleSheet.create({
     borderColor: '#7C99AE',
     textAlignVertical: 'top',
     color: '#ffffff',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(2),
     borderRadius: responsiveWidth(4),
     padding: responsiveWidth(4),
@@ -549,7 +559,7 @@ const styles = StyleSheet.create({
   },
 
   modalText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(2.4),
     color: '#7C99AE',
     alignSelf: 'center',

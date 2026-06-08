@@ -200,7 +200,9 @@ const ViewProfileScreen = ({ route }: any) => {
         await sendPushNotification(
           userId,
           'New Follower',
-          `${currentUser.username} starts following you`,
+          isFollowBack
+            ? `${currentUser.username} followed you back`
+            : `${currentUser.username} started following you`,
         );
       }
     } catch (err) {
@@ -346,7 +348,7 @@ const ViewProfileScreen = ({ route }: any) => {
                   <Button
                     iconName1={'user-minus'}
                     text={'Unfollow'}
-                    size={20}
+                    size={responsiveWidth(5)}
                     onPress={() => {
                       setModalHeader('Unfollow?');
                       setModalMessage(`Stop following ${userData?.username}?`);
@@ -356,7 +358,7 @@ const ViewProfileScreen = ({ route }: any) => {
                   />
                   <Button
                     text={'Message'}
-                    size={20}
+                    size={responsiveWidth(5)}
                     onPress={() =>
                       navigation.navigate('Message', {
                         username: userData?.username,
@@ -378,7 +380,7 @@ const ViewProfileScreen = ({ route }: any) => {
                 <Button
                   iconName1={'user-plus'}
                   text={isFollowBack ? 'Follow Back' : 'Follow'}
-                  size={20}
+                  size={responsiveWidth(5)}
                   onPress={() => toggleFollowUnfollow()}
                 />
               </View>
@@ -438,7 +440,6 @@ const ViewProfileScreen = ({ route }: any) => {
         <View
           style={{
             paddingHorizontal: responsiveWidth(5),
-            paddingTop: responsiveHeight(2),
           }}
         >
           <Text style={styles.subText}>POSTS</Text>
@@ -500,7 +501,11 @@ const ViewProfileScreen = ({ route }: any) => {
                 setDropdownVisible(true);
               }}
             >
-              <Feather name={'more-vertical'} size={24} color={'#ffffff'} />
+              <Feather
+                name={'more-vertical'}
+                size={responsiveWidth(6)}
+                color={'#ffffff'}
+              />
             </Pressable>
           )}
         </View>
@@ -560,7 +565,11 @@ const ViewProfileScreen = ({ route }: any) => {
               }
               style={styles.likeAndCommentButton}
             >
-              <Feather name={'message-circle'} size={22} color={'#ffffff'} />
+              <Feather
+                name={'message-circle'}
+                size={responsiveWidth(5.5)}
+                color={'#ffffff'}
+              />
               <Text style={styles.counterText}>
                 {formatCount(item.commentsCount ?? 0)}
               </Text>
@@ -609,12 +618,20 @@ const ViewProfileScreen = ({ route }: any) => {
               <View style={styles.emptyListComponentContainer}>
                 {shouldShowPosts ? (
                   <>
-                    <Feather name={'file-text'} size={40} color={'#475569'} />
+                    <Feather
+                      name={'file-text'}
+                      size={responsiveWidth(10)}
+                      color={'#475569'}
+                    />
                     <Text style={styles.emptyContainerText1}>No posts yet</Text>
                   </>
                 ) : (
                   <>
-                    <Feather name={'lock'} size={40} color={'#475569'} />
+                    <Feather
+                      name={'lock'}
+                      size={responsiveWidth(10)}
+                      color={'#475569'}
+                    />
                     <Text style={styles.emptyContainerText2}>
                       This account is private
                     </Text>
@@ -691,8 +708,7 @@ const styles = StyleSheet.create({
 
   headerText: {
     fontSize: responsiveFontSize(3),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     position: 'absolute',
     left: 0,
@@ -729,23 +745,21 @@ const styles = StyleSheet.create({
   },
 
   nameInitials: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-SemiBold',
     fontSize: responsiveFontSize(5),
-    fontWeight: 'bold',
     color: '#ffffff',
   },
 
   subText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-SemiBold',
     color: '#7C99AE',
     paddingTop: responsiveHeight(1.2),
-    fontWeight: '800',
   },
 
   text: {
     fontSize: responsiveFontSize(2),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#ffffff',
     paddingVertical: responsiveHeight(2.5),
   },
@@ -767,7 +781,7 @@ const styles = StyleSheet.create({
   },
   profileCounts: {
     fontSize: responsiveFontSize(2.2),
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     textAlign: 'center',
   },
@@ -791,27 +805,25 @@ const styles = StyleSheet.create({
   },
 
   profileInitials: {
-    fontFamily: 'Inter',
-    fontWeight: '800',
+    fontFamily: 'Inter-SemiBold',
     color: '#ffffff',
     fontSize: responsiveFontSize(1.8),
   },
 
   userName: {
-    fontFamily: 'Inter',
-    fontWeight: '800',
+    fontFamily: 'Inter-SemiBold',
     fontSize: responsiveFontSize(2),
     color: '#ffffff',
   },
 
   timeStamp: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#7C99AE',
     fontSize: responsiveFontSize(1.8),
   },
 
   postText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#ffffff',
     fontSize: responsiveFontSize(2.2),
   },
@@ -846,7 +858,7 @@ const styles = StyleSheet.create({
   },
 
   counterText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(2),
     color: '#7C99AE',
   },
@@ -860,12 +872,13 @@ const styles = StyleSheet.create({
   },
   emptyContainerText2: {
     color: '#ffffff',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     fontSize: responsiveFontSize(2),
     marginTop: responsiveHeight(1),
   },
   emptyContainerText3: {
     color: '#475569',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(1.6),
     marginTop: responsiveHeight(0.5),
   },

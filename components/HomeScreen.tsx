@@ -29,11 +29,6 @@ import {
   responsiveFontSize,
 } from 'react-native-responsive-dimensions';
 
-//SCREEN TYPES
-import { RootStackParamList } from '../navigation/routesType';
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
 //AUTH COMPONENTS
 import {
   doc,
@@ -48,6 +43,11 @@ import {
   deleteDoc,
 } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+
+//SCREEN TYPES
+import { RootStackParamList } from '../navigation/routesType';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 //OTHER COMPONENTS
 import Loading from '../utils/Loading';
@@ -310,7 +310,11 @@ const HomeScreen = () => {
               setDropdownVisible(true);
             }}
           >
-            <Feather name={'more-vertical'} size={24} color={'#ffffff'} />
+            <Feather
+              name={'more-vertical'}
+              size={responsiveWidth(6)}
+              color={'#ffffff'}
+            />
           </Pressable>
         )}
       </View>
@@ -370,7 +374,11 @@ const HomeScreen = () => {
             }
             style={styles.likeAndCommentButton}
           >
-            <Feather name={'message-circle'} size={22} color={'#ffffff'} />
+            <Feather
+              name={'message-circle'}
+              size={responsiveWidth(5.5)}
+              color={'#ffffff'}
+            />
             <Text style={styles.counterText}>
               {formatCount(item.commentsCount ?? 0)}
             </Text>
@@ -402,12 +410,20 @@ const HomeScreen = () => {
         <View style={styles.header}>
           <View style={styles.logoAndText}>
             <View style={styles.logoContainer}>
-              <Entypo name={'share'} size={30} color={'#6366F1'} />
+              <Entypo
+                name={'share'}
+                size={responsiveWidth(7.5)}
+                color={'#6366F1'}
+              />
             </View>
             <Text style={styles.headerText}>Social Connect</Text>
           </View>
           <TouchableOpacity onPress={() => navigation.navigate('CreatePost')}>
-            <AntDesign name={'plus'} size={30} color={'#ffffff'} />
+            <AntDesign
+              name={'plus'}
+              size={responsiveWidth(7.5)}
+              color={'#ffffff'}
+            />
           </TouchableOpacity>
         </View>
         <View style={styles.seperatorLine} />
@@ -508,8 +524,7 @@ const styles = StyleSheet.create({
 
   headerText: {
     fontSize: responsiveFontSize(3),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     includeFontPadding: false,
     textAlignVertical: 'center',
@@ -534,27 +549,25 @@ const styles = StyleSheet.create({
   },
 
   profileInitials: {
-    fontFamily: 'Inter',
-    fontWeight: '800',
+    fontFamily: 'Inter-SemiBold',
     color: '#ffffff',
     fontSize: responsiveFontSize(1.8),
   },
 
   userName: {
-    fontFamily: 'Inter',
-    fontWeight: '800',
+    fontFamily: 'Inter-SemiBold',
     fontSize: responsiveFontSize(2),
     color: '#ffffff',
   },
 
   timeStamp: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#7C99AE',
     fontSize: responsiveFontSize(1.8),
   },
 
   postText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#ffffff',
     fontSize: responsiveFontSize(2.2),
   },
@@ -589,7 +602,7 @@ const styles = StyleSheet.create({
   },
 
   counterText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(2),
     color: '#7C99AE',
   },

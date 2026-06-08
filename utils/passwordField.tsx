@@ -45,7 +45,7 @@ export default function PasswordField({
       >
         <Feather
           name={'lock'}
-          size={20}
+          size={responsiveWidth(5)}
           color={'#94a3b8'}
           style={styles.icon}
         />
@@ -64,7 +64,7 @@ export default function PasswordField({
       </View>
       <Feather
         name={ispasswordVisible ? 'eye-off' : 'eye'}
-        size={20}
+        size={responsiveWidth(5)}
         color={'#94a3b8'}
         style={styles.icon}
         onPress={handlePassword}
@@ -92,6 +92,7 @@ const styles = StyleSheet.create({
 
   input: {
     flexGrow: 1,
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(2),
     color: '#ffffff',
     width: '82%',

@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   menuText: {
     fontSize: responsiveFontSize(1.8),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#ffffff',
   },
 });

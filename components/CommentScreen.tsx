@@ -287,7 +287,7 @@ const CommentScreen = ({ route }: any) => {
                 addComment();
               }}
             >
-              <Ionicons name="send" size={20} color="#ffffff" />
+              <Ionicons name="send" size={responsiveWidth(5)} color="#ffffff" />
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -319,8 +319,7 @@ const styles = StyleSheet.create({
 
   headerText: {
     fontSize: responsiveFontSize(3),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     position: 'absolute',
     left: 0,
@@ -349,14 +348,13 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#ffffff',
     fontSize: responsiveFontSize(2.2),
-    fontWeight: 'bold',
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Bold',
   },
 
   emptySubText: {
     color: '#475569',
     fontSize: responsiveFontSize(1.8),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     marginTop: responsiveHeight(0.6),
   },
 
@@ -390,21 +388,20 @@ const styles = StyleSheet.create({
 
   username: {
     color: '#ffffff',
-    fontWeight: 'bold',
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-SemiBold',
     fontSize: responsiveFontSize(1.8),
     marginBottom: responsiveHeight(0.5),
   },
 
   commentText: {
     color: '#ffffff',
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(1.8),
   },
 
   timestamp: {
     color: '#475569',
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(1.6),
   },
 
@@ -422,7 +419,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveWidth(4),
     paddingVertical: responsiveHeight(1.2),
     color: '#ffffff',
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(1.8),
     marginRight: responsiveWidth(2.5),
     maxHeight: responsiveHeight(12),

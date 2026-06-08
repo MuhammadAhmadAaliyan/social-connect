@@ -30,7 +30,7 @@ export default function InputField({
     <View style={styles.inputContainer}>
       <Feather
         name={iconName}
-        size={20}
+        size={responsiveWidth(5)}
         color={'#94a3b8'}
         style={styles.icon}
       />
@@ -70,5 +70,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: responsiveFontSize(2),
     color: '#ffffff',
+    fontFamily: 'Inter-Regular',
   },
 });

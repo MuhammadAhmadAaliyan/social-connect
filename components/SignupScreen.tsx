@@ -121,7 +121,7 @@ const SignupScreen = () => {
           contentContainerStyle={{
             flexGrow: 1,
             padding: responsiveWidth(5),
-            paddingTop: responsiveHeight(6),
+            //paddingTop: responsiveHeight(3),
             paddingBottom: responsiveHeight(2.5),
           }}
           keyboardShouldPersistTaps="handled"
@@ -130,7 +130,7 @@ const SignupScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           {/*LOGO*/}
-          <Logo name={'link'} size={40} />
+          <Logo name={'link'} size={responsiveWidth(10)} />
           {/*WELCOME TEXT */}
           <Text style={styles.welcomeText}>Social Connect</Text>
           {/*SUBTEXT */}
@@ -273,16 +273,15 @@ const styles = StyleSheet.create({
   },
 
   welcomeText: {
-    fontSize: responsiveFontSize(4.5),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontSize: responsiveFontSize(3.5),
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     paddingTop: responsiveHeight(6),
   },
 
   subText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#7C99AE',
     paddingTop: responsiveHeight(1.2),
   },
@@ -301,7 +300,7 @@ const styles = StyleSheet.create({
 
   text: {
     fontSize: responsiveFontSize(2),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#7C99AE',
     lineHeight: responsiveHeight(2.5),
   },

@@ -416,7 +416,11 @@ const MessageScreen = ({ route }: any) => {
                 style={{ paddingRight: responsiveWidth(2.5) }}
                 onPress={() => navigation.goBack()}
               >
-                <Feather name={'arrow-left'} size={24} color={'#ffffff'} />
+                <Feather
+                  name={'arrow-left'}
+                  size={responsiveWidth(6)}
+                  color={'#ffffff'}
+                />
               </Pressable>
               {/*PROFILE PICTURE*/}
               {userImage ? (
@@ -445,7 +449,11 @@ const MessageScreen = ({ route }: any) => {
                 setDropdownVisible(true);
               }}
             >
-              <Feather name={'more-vertical'} size={24} color={'#ffffff'} />
+              <Feather
+                name={'more-vertical'}
+                size={responsiveWidth(6)}
+                color={'#ffffff'}
+              />
             </Pressable>
           </View>
 
@@ -537,7 +545,7 @@ const MessageScreen = ({ route }: any) => {
                 sendMessage();
               }}
             >
-              <Ionicons name="send" size={20} color="#ffffff" />
+              <Ionicons name="send" size={responsiveWidth(5)} color="#ffffff" />
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -589,8 +597,7 @@ const styles = StyleSheet.create({
 
   headerUsername: {
     fontSize: responsiveFontSize(2),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     textAlign: 'center',
   },
@@ -617,8 +624,7 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#475569',
     fontSize: responsiveFontSize(2.2),
-    fontWeight: 'bold',
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Bold',
   },
 
   userImage: {
@@ -632,7 +638,7 @@ const styles = StyleSheet.create({
 
   initials: {
     color: '#ffffff',
-    fontWeight: 'bold',
+    fontFamily: 'Inter-SemiBold',
     fontSize: responsiveFontSize(2),
   },
 
@@ -664,12 +670,12 @@ const styles = StyleSheet.create({
 
   message: {
     color: '#ffffff',
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(1.8),
   },
 
   timestamp: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(1.4),
     flexShrink: 0,
     alignSelf: 'flex-end',
@@ -689,7 +695,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveWidth(4),
     paddingVertical: responsiveHeight(1.2),
     color: '#ffffff',
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(1.8),
     marginRight: responsiveWidth(2.5),
     maxHeight: responsiveHeight(12),

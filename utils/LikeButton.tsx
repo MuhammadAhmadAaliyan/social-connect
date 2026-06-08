@@ -65,7 +65,7 @@ const LikeButton = ({
         <Animated.View style={animatedStyle}>
           <FontAwesome
             name={liked ? 'heart' : 'heart-o'}
-            size={22}
+            size={responsiveWidth(5.5)}
             color={liked ? 'red' : '#ffffff'}
           />
         </Animated.View>
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   counterText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontSize: responsiveFontSize(2),
     color: '#7C99AE',
   },

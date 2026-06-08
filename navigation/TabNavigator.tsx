@@ -12,6 +12,7 @@ import { Feather } from '@expo/vector-icons';
 import HomeScreen from '../components/HomeScreen';
 import ProfileScreen from '../components/ProfileScreen';
 import SettingScreen from '../components/SettingsScreen';
+import SearchScreen from '../components/SearchScreen';
 
 //SCREEN TYPES
 import { TabParamList } from './routesType';
@@ -46,6 +47,7 @@ export default function TabNavigator() {
             if (route.name === 'Home') iconName = 'home';
             else if (route.name === 'Profile') iconName = 'user';
             else if (route.name === 'Settings') iconName = 'settings';
+            else if (route.name === 'Search') iconName = 'search';
 
             return (
               <Feather
@@ -63,11 +65,12 @@ export default function TabNavigator() {
 
           tabBarLabelStyle: {
             fontSize: responsiveFontSize(1.6),
-            fontWeight: '500',
+            fontFamily: 'Inter-Medium',
           },
         })}
       >
         <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Search" component={SearchScreen} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
         <Tab.Screen name="Settings" component={SettingScreen} />
       </Tab.Navigator>

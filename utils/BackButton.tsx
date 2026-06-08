@@ -9,7 +9,11 @@ type InputFieldProps = {
 export default function BackButton({ onPress }: InputFieldProps) {
   return (
     <Pressable style={styles.backButton} onPress={onPress}>
-      <Feather name={'arrow-left'} size={30} color={'#ffffff'} />
+      <Feather
+        name={'arrow-left'}
+        size={responsiveWidth(7.5)}
+        color={'#ffffff'}
+      />
     </Pressable>
   );
 }

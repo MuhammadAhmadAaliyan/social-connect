@@ -78,7 +78,11 @@ const ForgotPasswordScreen = () => {
           <BackButton onPress={() => navigation.goBack()} />
           {/*LOGO*/}
           <View style={styles.logo}>
-            <FontAwesome5 name={'key'} size={40} color={'#6366F1'} />
+            <FontAwesome5
+              name={'key'}
+              size={responsiveWidth(10)}
+              color={'#6366F1'}
+            />
           </View>
           {/*WELCOME TEXT */}
           <Text style={styles.welcomeText}>Forgot Password?</Text>
@@ -131,7 +135,11 @@ const ForgotPasswordScreen = () => {
                   onPress={() => handleSubmit()}
                 >
                   <Text style={styles.buttonText}>Send reset link</Text>
-                  <FontAwesome name={'send'} size={25} color={'#ffffff'} />
+                  <FontAwesome
+                    name={'send'}
+                    size={responsiveWidth(6.5)}
+                    color={'#ffffff'}
+                  />
                 </TouchableOpacity>
               </>
             )}
@@ -174,16 +182,15 @@ const styles = StyleSheet.create({
   },
 
   welcomeText: {
-    fontSize: responsiveFontSize(4.5),
-    fontFamily: 'Inter',
-    fontWeight: 'bold',
+    fontSize: responsiveFontSize(3.5),
+    fontFamily: 'Inter-Bold',
     color: '#ffffff',
     paddingTop: responsiveHeight(6),
   },
 
   subText: {
     fontSize: responsiveFontSize(2),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     color: '#7C99AE',
     paddingTop: responsiveHeight(1.2),
   },
@@ -195,7 +202,7 @@ const styles = StyleSheet.create({
 
   buttonText: {
     fontSize: responsiveFontSize(2.4),
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Regular',
     fontWeight: 'bold',
     color: '#ffffff',
   },
