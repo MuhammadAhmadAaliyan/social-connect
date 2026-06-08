@@ -23,7 +23,7 @@ import {
   arrayUnion,
   doc,
   getDoc,
-  getDocs,
+  onSnapshot,
   query,
   collection,
   where,
@@ -78,47 +78,44 @@ const ViewProfileScreen = ({ route }: any) => {
 
   //FETCH USER PROFILE DATA FROM FIRESTORE
   useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        if (!userId) throw new Error();
+    if (!userId) return;
 
-        const [userSnap, postsSnap] = await Promise.all([
-          getDoc(doc(db, 'users', userId)),
-          getDocs(
-            query(
-              collection(db, 'posts'),
-              where('userId', '==', userId),
-              orderBy('createdAt', 'desc'),
-            ),
-          ),
-        ]);
+    const unsubscribe = onSnapshot(
+      query(
+        collection(db, 'posts'),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc'),
+      ),
+      async (postsSnap) => {
+        try {
+          const userSnap = await getDoc(doc(db, 'users', userId));
+          let userData: any = null;
 
-        let userData: any = null;
+          if (userSnap.exists()) {
+            userData = { id: userSnap.id, ...userSnap.data() };
+            setUserData(userData);
+          }
 
-        if (userSnap.exists()) {
-          userData = { id: userSnap.id, ...userSnap.data() };
-          setUserData(userData);
+          const posts = postsSnap.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: doc.data().createdAt?.toDate().toISOString() || null,
+            user: userData,
+          }));
+
+          setUserPosts(posts);
+        } catch (err) {
+          setModalHeader('Error');
+          setModalMessage('Unable to load profile. Try again later');
+          setModalVisible(true);
+          console.log(err);
+        } finally {
+          setLoading(false);
         }
+      },
+    );
 
-        const posts = postsSnap.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate().toISOString() || null,
-          user: userData,
-        }));
-
-        setUserPosts(posts);
-      } catch (err) {
-        setModalHeader('Error');
-        setModalMessage('Unable to load profile. Try again later');
-        setModalVisible(true);
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfileData();
+    return () => unsubscribe();
   }, [userId]);
 
   //METHOD FOR GETTING USER NAME INITIALS

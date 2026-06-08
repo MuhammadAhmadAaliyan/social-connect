@@ -62,6 +62,9 @@ const postsSlice = createSlice({
           : [...post.likes, userId];
       }
     },
+    appendPosts: (state, action) => {
+      state.posts = [...state.posts, ...action.payload];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -79,6 +82,12 @@ const postsSlice = createSlice({
   },
 });
 
-export const { addPost, toggleLike, clearError, setPosts, removePost } =
-  postsSlice.actions;
+export const {
+  addPost,
+  toggleLike,
+  clearError,
+  setPosts,
+  removePost,
+  appendPosts,
+} = postsSlice.actions;
 export default postsSlice.reducer;

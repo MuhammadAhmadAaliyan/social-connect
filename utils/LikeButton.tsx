@@ -34,7 +34,6 @@ const LikeButton = ({
     if (!liked) {
       scale.set(
         withSequence(
-          ///withSpring(1.4, { damping: 10, stiffness: 300 }),
           withTiming(1.5, { duration: 250 }),
           withTiming(1, { duration: 100 }),
         ),

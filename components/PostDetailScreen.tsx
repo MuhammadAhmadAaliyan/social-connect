@@ -3,11 +3,16 @@ import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../redux/store';
-import { toggleLike } from '../redux/slices/postsSlice';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { arrayRemove, arrayUnion } from 'firebase/firestore';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayRemove,
+  arrayUnion,
+  onSnapshot,
+} from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { Image } from 'expo-image';
 import { optimizeImageUrl } from '../utils/optimizedImageUrl';
@@ -35,43 +40,57 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 const PostDetailScreen = ({ route }: any) => {
   const { postId } = route.params;
   const navigation = useNavigation<NavigationProp>();
-  const dispatch = useDispatch<AppDispatch>();
   const { currentUser } = useSelector((state: RootState) => state.user);
-  const { posts } = useSelector((state: RootState) => state.posts);
-  const reduxPost = posts.find((p: any) => p.id === postId);
-  const [post, setPost] = useState<any>(reduxPost || null);
-  const [loading, setLoading] = useState(!reduxPost);
+  const [post, setPost] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
 
   //TRY REDUX FIRST, THEN FALLBACK TO FIRESTORE
   useEffect(() => {
-    const reduxPost = posts.find((p: any) => p.id === postId);
-    if (reduxPost) return;
+    if (!postId) return;
 
-    const fetchPost = async () => {
-      const snap = await getDoc(doc(db, 'posts', postId));
-      if (snap.exists()) {
-        setPost({ id: snap.id, ...snap.data() });
+    const unsubscribe = onSnapshot(doc(db, 'posts', postId), async (snap) => {
+      try {
+        if (snap.exists()) {
+          const data = snap.data();
+
+          const userSnap = await getDoc(doc(db, 'users', data.userId));
+          const user = userSnap.exists()
+            ? { id: userSnap.id, ...userSnap.data() }
+            : null;
+
+          setPost({
+            id: snap.id,
+            ...data,
+            createdAt: data.createdAt?.toDate().toISOString() || null,
+            user,
+          });
+        }
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    };
-    fetchPost();
-  }, [postId, posts]);
+    });
 
-  //METHOD FOR HANDLING LIKES/UNLIKES
+    return () => unsubscribe();
+  }, [postId]);
+
   const toggleLikes = async (postId: string) => {
     const userId = currentUser?.id;
-    if (!userId) return;
+    if (!userId || !post) return;
 
     const postRef = doc(db, 'posts', postId);
-    const post = posts.find((p: any) => p.id === postId);
     const alreadyLiked = post.likes.includes(userId);
 
-    //UPDATE IN UI
-    dispatch(toggleLike({ postId, userId }));
+    setPost((prev: any) => ({
+      ...prev,
+      likes: alreadyLiked
+        ? prev.likes.filter((id: string) => id !== userId)
+        : [...prev.likes, userId],
+    }));
 
     try {
-      //UPDATE IN BACKEND
       await updateDoc(postRef, {
         likes: alreadyLiked ? arrayRemove(userId) : arrayUnion(userId),
       });
@@ -85,9 +104,12 @@ const PostDetailScreen = ({ route }: any) => {
       }
     } catch (err) {
       console.log(err);
-
-      //REVERT CHANGES IN UI IF BACKEND FAILS
-      dispatch(toggleLike({ postId, userId }));
+      setPost((prev: any) => ({
+        ...prev,
+        likes: alreadyLiked
+          ? [...prev.likes, userId]
+          : prev.likes.filter((id: string) => id !== userId),
+      }));
     }
   };
 

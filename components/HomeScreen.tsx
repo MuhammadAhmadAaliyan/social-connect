@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -77,9 +77,24 @@ const HomeScreen = () => {
   });
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const { currentUser } = useSelector((state: RootState) => state.user);
+  const usersCache = useRef<any[]>([]);
 
   //SETUP NAVIGATION
   const navigation = useNavigation<NavigationProp>();
+
+  //GET USER ONCE AND CACHED
+  const getUsers = async (forceRefresh = false) => {
+    if (usersCache.current.length > 0 && !forceRefresh)
+      return usersCache.current;
+    const usersSnap = await getDocs(collection(db, 'users'));
+    const users = usersSnap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate().toISOString() || null,
+    }));
+    usersCache.current = users;
+    return users;
+  };
 
   //FETCHING POSTS FROM DATABASE
   useEffect(() => {
@@ -97,15 +112,15 @@ const HomeScreen = () => {
           };
         });
 
-        const usersSnap = await getDocs(collection(db, 'users'));
-        const users = usersSnap.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            createdAt: data.createdAt?.toDate().toISOString() || null,
-          };
-        });
+        let users = await getUsers();
+
+        //IF ANY POST HAS UNKNOWN USER REFRESH CACHE
+        const hasUnknownUser = posts.some(
+          (post: any) => !users.find((u: any) => u.id === post.userId),
+        );
+        if (hasUnknownUser) {
+          users = await getUsers(true); // ← force refresh
+        }
 
         const finalPosts = posts.map((post: any) => ({
           ...post,
@@ -393,6 +408,8 @@ const HomeScreen = () => {
     setRefreshing(true);
     try {
       await dispatch(fetchPosts()).unwrap();
+      usersCache.current = [];
+      await getUsers();
     } catch (err) {
       console.log(err);
     } finally {
