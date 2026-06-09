@@ -52,9 +52,7 @@ export default function TabNavigator() {
             return (
               <Feather
                 name={iconName}
-                size={
-                  focused ? responsiveFontSize(3.2) : responsiveFontSize(2.8)
-                }
+                size={focused ? responsiveWidth(6.5) : responsiveWidth(5.8)}
                 color={color}
               />
             );

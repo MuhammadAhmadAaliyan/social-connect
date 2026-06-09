@@ -144,7 +144,7 @@ const MessageScreen = ({ route }: any) => {
       if (!isLoadingMore.current) {
         setTimeout(() => {
           flatListRef.current?.scrollToEnd({ animated: true });
-        }, 150);
+        }, 300);
       }
     });
 
@@ -475,15 +475,10 @@ const MessageScreen = ({ route }: any) => {
               //ONLY SCROLL TO END WHEN NEW MESSAGE SEND
               onContentSizeChange={() => {
                 if (isSendingMessage.current) {
-                  flatListRef.current?.scrollToEnd({ animated: true });
                   isSendingMessage.current = false;
-                }
-              }}
-              //ALSO SCROLL ON LAYOUT CHANGE(KEYBOARD OPEN/CLOSE)
-              onLayout={() => {
-                if (isSendingMessage.current) {
-                  flatListRef.current?.scrollToEnd({ animated: true });
-                  isSendingMessage.current = false;
+                  setTimeout(() => {
+                    flatListRef.current?.scrollToEnd({ animated: false });
+                  }, 50);
                 }
               }}
               //FOR DETECTING TOP
@@ -528,7 +523,7 @@ const MessageScreen = ({ route }: any) => {
           {/*SEPARATOR LINE*/}
           <View style={styles.seperatorLine} />
 
-          {/*COMMENT INPUT*/}
+          {/*Message INPUT*/}
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
