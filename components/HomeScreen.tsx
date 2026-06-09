@@ -512,7 +512,7 @@ const HomeScreen = () => {
     </>
   );
 };
-//muhammadaaliyan39@gmail.com Ahmad@123
+
 export default HomeScreen;
 
 const styles = StyleSheet.create({
